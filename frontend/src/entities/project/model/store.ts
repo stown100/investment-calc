@@ -48,27 +48,29 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   },
   addProject: async (project) => {
     await projectApi.addProject(project);
-    await get().fetchProjects();
+    await get().fetchProjects(get().sortBy, get().sortOrder, get().status, get().searchQuery);
   },
   removeProject: async (id) => {
     await projectApi.removeProject(id);
-    await get().fetchProjects();
+    await get().fetchProjects(get().sortBy, get().sortOrder, get().status, get().searchQuery);
   },
   updateProject: async (project) => {
     await projectApi.updateProject(project);
-    await get().fetchProjects();
+    await get().fetchProjects(get().sortBy, get().sortOrder, get().status, get().searchQuery);
   },
   setSorting: (sortBy: string, sortOrder: string) => {
     set({ sortBy, sortOrder });
-    get().fetchProjects(sortBy, sortOrder);
+    get().fetchProjects(sortBy, sortOrder, undefined, get().searchQuery);
   },
   setStatusFilter: (status: string) => {
     set({ status });
-    get().fetchProjects();
+    get().fetchProjects(undefined, undefined, status, get().searchQuery);
   },
   setSearchQuery: (search: string) => {
+    console.log('setSearchQuery called with:', search); // Debug log
     set({ searchQuery: search });
-    get().fetchProjects().then(() => {
+    get().fetchProjects(undefined, undefined, undefined, search).then(() => {
+      console.log('Search completed, projects count:', get().projects.length); // Debug log
       if (search.trim() !== '') {
         notifications.show({
           title: "Search Results",
