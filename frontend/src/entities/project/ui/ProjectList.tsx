@@ -24,11 +24,14 @@ export const ProjectList = () => {
   const projects = useProjectStore((s) => s.projects);
   const removeProject = useProjectStore((s) => s.removeProject);
   const fetchProjects = useProjectStore((s) => s.fetchProjects);
+  const sortBy = useProjectStore((s) => s.sortBy);
+  const sortOrder = useProjectStore((s) => s.sortOrder);
+  const status = useProjectStore((s) => s.status);
   const now = dayjs();
 
   useEffect(() => {
-    fetchProjects();
-  }, [fetchProjects]);
+    fetchProjects(sortBy, sortOrder, status);
+  }, [fetchProjects, sortBy, sortOrder, status]);
 
   // Handles project deletion with confirmation
   const handleDelete = (id: string) => {

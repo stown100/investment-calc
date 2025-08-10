@@ -8,9 +8,10 @@ import {
   rem,
   Button,
   Box,
-  Stack,
 } from "@mantine/core";
 import { ProjectList } from "../../entities/project/ui/ProjectList";
+import { ProjectSorting } from "../../entities/project/ui/ProjectSorting";
+import { ProjectStatusFilter } from "../../entities/project/ui/ProjectStatusFilter";
 import { Calculator } from "../../features/calculator/ui/Calculator";
 import { InvestmentSummary } from "../../features/investment-summary/ui/InvestmentSummary";
 import { IconBuilding, IconPlus } from "@tabler/icons-react";
@@ -47,6 +48,12 @@ export const HomePage = () => {
               Add Project
             </Button>
           </Group>
+
+          <Group gap="md" align="end" mb="xs">
+            <ProjectSorting />
+            <ProjectStatusFilter />
+          </Group>
+
           <ProjectList />
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 6 }}>

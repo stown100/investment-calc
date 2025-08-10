@@ -2,8 +2,26 @@ import { Project } from '../model/types';
 
 const API_URL = 'http://localhost:3001/api/projects';
 
-export async function getAllProjects(): Promise<Project[]> {
-  const res = await fetch(API_URL);
+export interface SortParams {
+  sortBy?: string;
+  sortOrder?: string;
+  status?: string;
+}
+
+export async function getAllProjects(sortParams?: SortParams): Promise<Project[]> {
+  const url = new URL(API_URL);
+  
+  if (sortParams?.sortBy) {
+    url.searchParams.append('sortBy', sortParams.sortBy);
+  }
+  if (sortParams?.sortOrder) {
+    url.searchParams.append('sortOrder', sortParams.sortOrder);
+  }
+  if (sortParams?.status) {
+    url.searchParams.append('status', sortParams.status);
+  }
+  
+  const res = await fetch(url.toString());
   if (!res.ok) throw new Error('Failed to fetch projects');
   return res.json();
 }
