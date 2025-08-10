@@ -6,6 +6,7 @@ export interface SortParams {
   sortBy?: string;
   sortOrder?: string;
   status?: string;
+  search?: string;
 }
 
 export async function getAllProjects(sortParams?: SortParams): Promise<Project[]> {
@@ -20,6 +21,12 @@ export async function getAllProjects(sortParams?: SortParams): Promise<Project[]
   if (sortParams?.status) {
     url.searchParams.append('status', sortParams.status);
   }
+  if (sortParams?.search) {
+    url.searchParams.append('search', sortParams.search);
+  }
+  
+  console.log('API request URL:', url.toString()); // Debug log
+  console.log('API request params:', sortParams); // Debug log
   
   const res = await fetch(url.toString());
   if (!res.ok) throw new Error('Failed to fetch projects');

@@ -3,14 +3,26 @@ import { openDb } from './db';
 
 const router = Router();
 
-// Get all projects with sorting and status filtering
+// Get all projects with sorting, status filtering and search
 router.get('/', async (req, res) => {
-  const { sortBy, sortOrder, status } = req.query;
+  const { sortBy, sortOrder, status, search } = req.query;
   const db = await openDb();
+  
+  console.log('Search query:', search); // Debug log
   
   let query = 'SELECT * FROM projects';
   let params: any[] = [];
   let conditions: string[] = [];
+  
+  // Add search filtering
+  if (search && typeof search === 'string' && search.trim() !== '') {
+    const searchTerm = search.trim();
+    console.log('Search term:', searchTerm); // Debug log
+    
+    // Simple LIKE search - more precise
+    conditions.push('LOWER(name) LIKE LOWER(?)');
+    params.push(`%${searchTerm}%`);
+  }
   
   // Add status filtering
   if (status && (status === 'active' || status === 'pending')) {
@@ -36,7 +48,13 @@ router.get('/', async (req, res) => {
     }
   }
   
+  console.log('Final query:', query); // Debug log
+  console.log('Query params:', params); // Debug log
+  
   const projects = await db.all(query, params);
+  console.log('Found projects:', projects.length); // Debug log
+  console.log('First few projects:', projects.slice(0, 3).map(p => p.name)); // Debug log
+  
   res.json(projects);
 });
 

@@ -13,39 +13,41 @@ import {
 } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
-import { v4 as uuidv4 } from "uuid";
 import {
   IconBuilding,
   IconPercentage,
   IconCalendar,
   IconCoin,
-  IconPlus,
+  IconEdit,
 } from "@tabler/icons-react";
 import { useState } from "react";
+import { Project } from "../../../entities/project/model/types";
 import { notifications } from "@mantine/notifications";
 
-interface AddProjectFormValues {
+interface EditProjectFormValues {
   name: string;
   annualPercent: number;
   startDate: string;
   investedAmount: number;
 }
 
-interface AddProjectFormProps {
+interface EditProjectFormProps {
+  project: Project;
   onSuccess?: () => void;
 }
 
-// Form for adding a new investment project
-export const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
-  const addProject = useProjectStore((s) => s.addProject);
+// Form for editing an existing investment project
+export const EditProjectForm = ({ project, onSuccess }: EditProjectFormProps) => {
+  const updateProject = useProjectStore((s) => s.updateProject);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const form = useForm<AddProjectFormValues>({
+  
+  const form = useForm<EditProjectFormValues>({
     initialValues: {
-      name: "",
-      annualPercent: 0,
-      startDate: new Date().toISOString(),
-      investedAmount: 0,
+      name: project.name,
+      annualPercent: project.annualPercent,
+      startDate: project.startDate,
+      investedAmount: project.investedAmount,
     },
     validate: {
       name: (value) => (value.trim().length === 0 ? "Name is required" : null),
@@ -56,36 +58,36 @@ export const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
     },
   });
 
-  // Handles form submission and adds a new project
-  const handleSubmit = async (values: AddProjectFormValues) => {
+  // Handles form submission and updates the project
+  const handleSubmit = async (values: EditProjectFormValues) => {
     setLoading(true);
     setError(null);
-    const newProject = {
-      id: uuidv4(),
+    
+    const updatedProject: Project = {
+      ...project,
       name: values.name,
       annualPercent: values.annualPercent,
       startDate: values.startDate,
-      createdAt: new Date().toISOString(),
       investedAmount: values.investedAmount,
     };
+    
     try {
-      await addProject(newProject);
-      form.reset();
+      await updateProject(updatedProject);
       notifications.show({
         title: "Success!",
-        message: "Project has been created successfully",
+        message: "Project has been updated successfully",
         color: "green",
-        icon: <IconPlus size={16} />,
+        icon: <IconEdit size={16} />,
       });
       onSuccess?.();
     } catch (e) {
-      const errorMessage = 'Failed to add project';
+      const errorMessage = 'Failed to update project';
       setError(errorMessage);
       notifications.show({
         title: "Error",
         message: errorMessage,
         color: "red",
-        icon: <IconPlus size={16} />,
+        icon: <IconEdit size={16} />,
       });
     } finally {
       setLoading(false);
@@ -101,7 +103,7 @@ export const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
         loaderProps={{ color: "blue", type: "bars" }}
       />
       <Title order={4} mb="md">
-        Add New Project
+        Edit Project
       </Title>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="md">
@@ -176,14 +178,14 @@ export const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
             <Button
               type="submit"
               leftSection={
-                <IconPlus style={{ width: rem(16), height: rem(16) }} />
+                <IconEdit style={{ width: rem(16), height: rem(16) }} />
               }
               variant="filled"
               color="blue"
               loading={loading}
               disabled={loading}
             >
-              Add Project
+              Update Project
             </Button>
           </Group>
           {error && <div style={{ color: 'red' }}>{error}</div>}

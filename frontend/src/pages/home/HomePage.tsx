@@ -12,6 +12,7 @@ import {
 import { ProjectList } from "../../entities/project/ui/ProjectList";
 import { ProjectSorting } from "../../entities/project/ui/ProjectSorting";
 import { ProjectStatusFilter } from "../../entities/project/ui/ProjectStatusFilter";
+import { ProjectSearch } from "../../entities/project/ui/ProjectSearch";
 import { Calculator } from "../../features/calculator/ui/Calculator";
 import { InvestmentSummary } from "../../features/investment-summary/ui/InvestmentSummary";
 import { IconBuilding, IconPlus } from "@tabler/icons-react";
@@ -50,6 +51,7 @@ export const HomePage = () => {
           </Group>
 
           <Group gap="md" align="end" mb="xs">
+            <ProjectSearch />
             <ProjectSorting />
             <ProjectStatusFilter />
           </Group>
