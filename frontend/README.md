@@ -1,61 +1,300 @@
-# Investment Calculator
+# Frontend - Investment Calculator
 
-This project is a React-based investment calculator application. It allows users to manage a list of investment projects, view a summary of their total and active investments, and calculate potential returns over various periods based on their selected projects.
+Client-side application for Investment Calculator, built on React using modern technologies and Feature-Sliced Design architecture.
 
-## Features
+## 🚀 Description
 
--   **Project Management:** Add, view, and delete investment projects with details such as name, annual percentage, start date, and invested amount.
--   **Investment Summary:** Displays a quick overview of total projects, average annual percentage, total invested amount, and active investments.
--   **Return Calculator:** Calculate potential returns for selected projects over predefined periods (e.g., day, week, month, year, etc.).
--   **Local Storage Persistence:** All project data is saved in your browser's local storage, ensuring data persists across sessions.
+Frontend is a single-page application (SPA) that provides users with an intuitive interface for:
 
-## Technology Stack
+- Managing investment projects
+- Calculating potential returns
+- Analyzing investment portfolio
+- Sorting and filtering data
 
--   **React 19:** A JavaScript library for building user interfaces.
--   **Vite:** A fast build tool that provides a lightning-fast development experience.
--   **Mantine:** A React components library for building accessible and customizable user interfaces.
--   **Zustand:** A small, fast, and scalable bear-bones state-management solution.
--   **dayjs:** A minimalist JavaScript library for parsing, validating, manipulating, and formatting dates.
--   **uuid:** For generating unique IDs for projects.
--   **ESLint:** For linting and ensuring code quality.
--   **Sass:** CSS preprocessor for styling.
+## 🏗️ Architecture
 
-## Installation
+The project follows the **Feature-Sliced Design (FSD)** methodology, which ensures:
 
-To get a copy of the project up and running on your local machine, follow these steps:
+- Clear separation of responsibilities
+- Code scalability
+- Component reusability
+- Easy testing
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <repository_url> # Replace <repository_url> with the actual URL
-    cd investment-calc
-    ```
+### Project Structure
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
+```
+src/
+├── app/                    # Application configuration
+│   ├── AppRouter.tsx      # Routing
+│   └── App.jsx            # Main component
+├── entities/               # Business entities
+│   └── project/           # Project entity
+│       ├── api/           # API client
+│       ├── model/         # Data model
+│       ├── types/         # TypeScript types
+│       └── ui/            # UI components
+├── features/               # Functional modules
+│   ├── add-project/       # Adding projects
+│   ├── calculator/        # Return calculator
+│   ├── edit-project/      # Editing projects
+│   └── investment-summary/ # Investment summary
+├── pages/                  # Application pages
+│   └── home/              # Home page
+├── shared/                 # Common components
+├── widgets/                # Composite UI blocks
+└── main.jsx                # Entry point
+```
 
-## Running the Application
+## 🛠️ Technology Stack
 
-After installing the dependencies, you can run the application in development mode:
+### Core Technologies
+- **React 19** - modern library for building UI
+- **TypeScript** - typed JavaScript for code reliability
+- **Vite** - fast project bundler with hot reload
 
+### UI and Styling
+- **Mantine** - React component library with Material Design
+- **Sass** - CSS preprocessor for advanced styling
+- **CSS Modules** - local scope for styles
+
+### State Management
+- **Zustand** - lightweight library for state management
+- **React Hooks** - built-in React hooks for state management
+
+### Utilities
+- **dayjs** - date manipulation library (moment.js alternative)
+- **uuid** - unique identifier generation
+
+### Development Tools
+- **ESLint** - linter for code quality
+- **Prettier** - code formatting
+- **TypeScript** - static typing
+
+## 📦 Installation and Setup
+
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+- Running backend server
+
+### Installing Dependencies
+```bash
+npm install
+```
+
+### Running in Development Mode
 ```bash
 npm run dev
 ```
 
-This will start the development server, usually at `http://localhost:5173`. You can then open this URL in your web browser.
+The application will be available at: `http://localhost:5173`
 
-## Project Structure
+### Building for Production
+```bash
+npm run build
+```
 
-The project follows a feature-sliced design methodology, organizing code by features and entities.
+### Preview Build
+```bash
+npm run preview
+```
 
--   `src/app/`: Contains application-level configurations and routing.
--   `src/entities/`: Defines core business entities like `project`, including its model (store, sample data, types) and UI components.
--   `src/features/`: Implements specific features such as adding a project, the calculator, and investment summary. Each feature has its own model and UI components.
--   `src/pages/`: Holds page-level components that compose features and entities to form complete views.
--   `src/shared/`: Contains reusable utilities, UI elements, and constants that are shared across the application.
--   `src/widgets/`: Larger UI compositions that combine multiple features or entities.
+## 🎯 Main Features
 
-## Contributing
+### 1. Project Management
+- **Adding** - form for creating new investment projects
+- **Viewing** - list of all projects with detailed information
+- **Editing** - modifying existing projects
+- **Deleting** - removing projects with confirmation
 
-Contributions are welcome! If you have any suggestions, bug reports, or want to contribute to the codebase, please feel free to open an issue or submit a pull request.
+### 2. Return Calculator
+- Profit calculation for various time periods
+- Results visualization in table format
+- Project selection for calculation
+- Total portfolio return calculation
+
+### 3. Analytics and Reports
+- Overall investment summary
+- Project statistics
+- Status filtering (active/pending)
+- Sorting by various parameters
+
+## 🔧 Development
+
+### Component Architecture
+
+#### Entities
+Business entities of the application:
+- **Project** - main investment project entity
+- **Types** - TypeScript interfaces and types
+- **Store** - state management through Zustand
+- **API** - backend interaction
+
+#### Features
+Individual functional modules:
+- **Add Project** - creating new projects
+- **Calculator** - return calculation
+- **Edit Project** - editing projects
+- **Investment Summary** - investment overview
+
+#### Pages
+Composition of features and entities:
+- **Home Page** - main page with core functionality
+
+#### Shared
+Reusable components and utilities
+
+#### Widgets
+Composite UI blocks combining multiple features
+
+### State Management
+
+#### Zustand Store
+```typescript
+interface ProjectStore {
+  projects: Project[];
+  loading: boolean;
+  error: string | null;
+  
+  // Actions
+  fetchProjects: (sortBy?: string, sortOrder?: string, status?: string) => Promise<void>;
+  addProject: (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  updateProject: (project: Project) => Promise<void>;
+  removeProject: (id: string) => Promise<void>;
+}
+```
+
+#### React Hooks
+- `useState` - local component state
+- `useEffect` - side effects
+- `useCallback` - function memoization
+- `useMemo` - value memoization
+
+### API Interaction
+
+#### HTTP Client
+```typescript
+// projectApi.ts
+export const projectApi = {
+  getProjects: (params?: ProjectQueryParams) => fetch('/api/projects', { params }),
+  createProject: (project: CreateProjectData) => fetch('/api/projects', { method: 'POST', body: JSON.stringify(project) }),
+  updateProject: (id: string, project: UpdateProjectData) => fetch(`/api/projects/${id}`, { method: 'PUT', body: JSON.stringify(project) }),
+  deleteProject: (id: string) => fetch(`/api/projects/${id}`, { method: 'DELETE' })
+};
+```
+
+## 🎨 UI/UX Features
+
+### Mantine Components
+- **Card** - project cards
+- **Modal** - modal windows for forms
+- **Form** - validation and form management
+- **Table** - tabular data representation
+- **Button** - buttons with various options
+- **Input** - input fields with validation
+
+### Responsive Design
+- Mobile adaptation
+- Responsive layout
+- Touch-friendly interface
+
+### Accessibility
+- ARIA labels
+- Keyboard navigation
+- Screen reader support
+- High contrast support
+
+## 🧪 Testing
+
+### Manual Testing
+- Testing all user scenarios
+- Form validation verification
+- Responsive design testing
+- Accessibility checking
+
+### Automated Testing (Planned)
+- Unit tests for components
+- Integration tests for features
+- E2E tests for critical paths
+
+## 📱 Compatibility
+
+### Browsers
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+
+### Devices
+- Desktop (1920x1080+)
+- Tablet (768x1024)
+- Mobile (375x667+)
+
+## 🚀 Performance
+
+### Optimizations
+- Code splitting by features
+- Lazy loading components
+- Computation memoization
+- Re-render optimization
+
+### Metrics
+- First Contentful Paint < 1.5s
+- Largest Contentful Paint < 2.5s
+- Cumulative Layout Shift < 0.1
+
+## 🔒 Security
+
+### Current Measures
+- Input data validation
+- User input sanitization
+- CORS settings on backend
+
+### Production Recommendations
+- HTTPS
+- Content Security Policy
+- XSS protection
+- CSRF tokens
+
+## 📝 Logging
+
+### Console Logs
+- API request errors
+- Validation errors
+- Debug information
+
+### Monitoring (Planned)
+- Error tracking (Sentry)
+- Performance monitoring
+- User analytics
+
+## 🤝 Contributing
+
+We welcome contributions to frontend development!
+
+### Areas for Improvement
+- Adding tests
+- Improving accessibility
+- Performance optimization
+- Adding PWA functionality
+- UI/UX improvements
+- Adding animations
+
+### Development Process
+1. Create an Issue describing the task
+2. Fork the repository
+3. Create a feature branch
+4. Make changes
+5. Create a Pull Request
+
+## 📄 License
+
+The project is distributed under the ISC license.
+
+## 👥 Authors
+
+The project was created to demonstrate modern web development technologies and best practices for building React applications.
+
+---
+
+**Note**: This is a demonstration project created for studying modern web development technologies.
