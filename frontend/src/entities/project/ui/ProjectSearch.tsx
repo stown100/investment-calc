@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useProjectStore } from "../model/store";
-import { TextInput, rem, Text, ActionIcon, Tooltip } from "@mantine/core";
-import { IconSearch, IconX } from "@tabler/icons-react";
+import { 
+  TextField, 
+  Typography, 
+  Box, 
+  IconButton, 
+  Tooltip,
+  InputAdornment
+} from "@mui/material";
+import { Search as SearchIcon, Clear as ClearIcon } from "@mui/icons-material";
 
 // Search component for filtering projects by name
 export const ProjectSearch = () => {
@@ -26,41 +33,48 @@ export const ProjectSearch = () => {
   };
 
   return (
-    <div>
-      <Text size="sm" fw={500} mb={4}>
+    <Box>
+      <Typography variant="body2" sx={{ fontWeight: 500, mb: 0.5 }}>
         Search:
-      </Text>
+      </Typography>
 
-      <TextInput
+      <TextField
         placeholder="Search projects by name..."
         value={localSearchQuery}
-        onChange={(event) => setLocalSearchQuery(event.currentTarget.value)}
-        leftSection={
-          <IconSearch
-            style={{ width: rem(16), height: rem(16) }}
-            stroke={1.5}
-          />
-        }
-        rightSection={
-          localSearchQuery && (
-            <Tooltip label="Clear search">
-              <ActionIcon
-                variant="subtle"
-                size="sm"
-                onClick={handleClear}
-                style={{ cursor: "pointer" }}
-              >
-                <IconX
-                  style={{ width: rem(14), height: rem(14) }}
-                  stroke={1.5}
-                />
-              </ActionIcon>
-            </Tooltip>
-          )
-        }
-        size="xs"
-        style={{ minWidth: 250 }}
+        onChange={(event) => setLocalSearchQuery(event.target.value)}
+        size="small"
+        sx={{ 
+          minWidth: 250,
+          '& .MuiOutlinedInput-root': {
+            borderRadius: 2,
+          }
+        }}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+            </InputAdornment>
+          ),
+          endAdornment: localSearchQuery && (
+            <InputAdornment position="end">
+              <Tooltip title="Clear search">
+                <IconButton
+                  size="small"
+                  onClick={handleClear}
+                  sx={{ 
+                    color: 'text.secondary',
+                    '&:hover': {
+                      color: 'text.primary'
+                    }
+                  }}
+                >
+                  <ClearIcon sx={{ fontSize: 16 }} />
+                </IconButton>
+              </Tooltip>
+            </InputAdornment>
+          ),
+        }}
       />
-    </div>
+    </Box>
   );
 };

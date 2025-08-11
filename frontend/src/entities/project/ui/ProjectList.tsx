@@ -2,26 +2,26 @@ import React, { useEffect, useState } from "react";
 import { useProjectStore } from "../model/store";
 import {
   Card,
-  Group,
-  Text,
-  Badge,
-  Stack,
-  ActionIcon,
+  CardContent,
+  Typography,
+  Chip,
+  Box,
+  IconButton,
   Tooltip,
-  rem,
-} from "@mantine/core";
+  Stack,
+} from "@mui/material";
 import {
-  IconBuilding,
-  IconPercentage,
-  IconCoin,
-  IconCalendar,
-  IconTrash,
-  IconEdit,
-} from "@tabler/icons-react";
+  Business as BusinessIcon,
+  Percent as PercentIcon,
+  AttachMoney as MoneyIcon,
+  CalendarToday as CalendarIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+} from "@mui/icons-material";
 import dayjs from "dayjs";
 import { Project } from "../model/types";
 import { EditProjectModal } from "../../../features/edit-project/ui/EditProjectModal";
-import { notifications } from "@mantine/notifications";
+import { useNotification } from "../../../shared/context/NotificationContext";
 
 // Displays the list of investment projects
 export const ProjectList = () => {
@@ -33,6 +33,7 @@ export const ProjectList = () => {
   const status = useProjectStore((s) => s.status);
   const searchQuery = useProjectStore((s) => s.searchQuery);
   const now = dayjs();
+  const { showNotification } = useNotification();
 
   // State for edit modal
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -40,33 +41,18 @@ export const ProjectList = () => {
 
   useEffect(() => {
     fetchProjects(sortBy, sortOrder, status, searchQuery).catch((e) => {
-      notifications.show({
-        title: "Error",
-        message: "Failed to load projects",
-        color: "red",
-        icon: <IconBuilding size={16} />,
-      });
+      showNotification("Failed to load projects", "error");
     });
-  }, [fetchProjects, sortBy, sortOrder, status, searchQuery]);
+  }, [fetchProjects, sortBy, sortOrder, status, searchQuery, showNotification]);
 
   // Handles project deletion with confirmation
   const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this project?")) {
       try {
         await removeProject(id);
-        notifications.show({
-          title: "Success!",
-          message: "Project has been deleted successfully",
-          color: "green",
-          icon: <IconTrash size={16} />,
-        });
+        showNotification("Project has been deleted successfully", "success");
       } catch (e) {
-        notifications.show({
-          title: "Error",
-          message: "Failed to delete project",
-          color: "red",
-          icon: <IconTrash size={16} />,
-        });
+        showNotification("Failed to delete project", "error");
       }
     }
   };
@@ -83,9 +69,26 @@ export const ProjectList = () => {
     setEditingProject(null);
   };
 
+  if (projects.length === 0) {
+    return (
+      <Box sx={{ 
+        textAlign: 'center', 
+        py: 4,
+        color: 'text.secondary'
+      }}>
+        <Typography variant="h6" gutterBottom>
+          No projects found
+        </Typography>
+        <Typography variant="body2">
+          {searchQuery ? `No projects match "${searchQuery}"` : "Start by adding your first investment project"}
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <>
-      <Stack gap="sm">
+      <Stack spacing={2}>
         {projects.map((project) => {
           const isActive = now.isAfter(dayjs(project.startDate));
           const startDate = dayjs(project.startDate);
@@ -94,120 +97,118 @@ export const ProjectList = () => {
           return (
             <Card
               key={project.id}
-              shadow="sm"
-              padding="md"
-              radius="md"
-              withBorder
-              style={{ width: "100%" }}
+              elevation={2}
+              sx={{
+                borderRadius: 2,
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  elevation: 4,
+                  transform: 'translateY(-2px)',
+                }
+              }}
             >
-              <Group justify="space-between" align="flex-start" wrap="nowrap">
-                <Stack gap="xs" style={{ flex: 1, minWidth: 0 }}>
-                  <Group gap="xs" wrap="nowrap">
-                    <IconBuilding
-                      style={{ width: rem(20), height: rem(20) }}
-                      stroke={1.5}
-                    />
-                    <Text fw={500} size="lg" truncate>
-                      {project.name}
-                    </Text>
-                  </Group>
+              <CardContent sx={{ p: 2 }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  gap: 2, 
+                  alignItems: { xs: 'flex-start', sm: 'center' }
+                }}>
+                  <Box sx={{ flex: { sm: 2 }, minWidth: 0 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <BusinessIcon sx={{ fontSize: 20, color: 'primary.main' }} />
+                      <Typography variant="h6" component="h3" sx={{ fontWeight: 500 }}>
+                        {project.name}
+                      </Typography>
+                    </Box>
+                    
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                      <Chip
+                        label={isActive ? "Active" : "Pending"}
+                        color={isActive ? "success" : "warning"}
+                        size="small"
+                        variant="outlined"
+                      />
+                      <Chip
+                        label={`${project.annualPercent}% per year`}
+                        icon={<PercentIcon />}
+                        size="small"
+                        variant="outlined"
+                        color="primary"
+                      />
+                    </Box>
+                  </Box>
 
-                  <Group gap="xl" wrap="nowrap">
-                    <Group gap="xs" wrap="nowrap">
-                      <IconPercentage
-                        style={{ width: rem(16), height: rem(16) }}
-                        stroke={1.5}
-                      />
-                      <Text size="sm">
-                        <Text span fw={500}>
-                          Annual Percent:
-                        </Text>{" "}
-                        {project.annualPercent}%
-                      </Text>
-                    </Group>
+                  <Box sx={{ flex: { sm: 1 }, minWidth: 0 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <MoneyIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                      <Typography variant="body2" color="text.secondary">
+                        Investment Amount
+                      </Typography>
+                    </Box>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      ${project.investedAmount.toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </Typography>
+                  </Box>
 
-                    <Group gap="xs" wrap="nowrap">
-                      <IconCoin
-                        style={{ width: rem(16), height: rem(16) }}
-                        stroke={1.5}
-                      />
-                      <Text size="sm">
-                        <Text span fw={500}>
-                          Invested:
-                        </Text>{" "}
-                        <Text span c="blue.6">
-                          $
-                          {project.investedAmount.toLocaleString("en-US", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </Text>
-                      </Text>
-                    </Group>
+                  <Box sx={{ flex: { sm: 1 }, minWidth: 0 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <CalendarIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                      <Typography variant="body2" color="text.secondary">
+                        Start Date
+                      </Typography>
+                    </Box>
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      {startDate.format("DD.MM.YYYY")}
+                    </Typography>
+                    {!isActive && (
+                      <Typography variant="caption" color="text.secondary">
+                        {daysUntilStart > 0 ? `in ${daysUntilStart} days` : 'today'}
+                      </Typography>
+                    )}
+                  </Box>
 
-                    <Group gap="xs" wrap="nowrap">
-                      <IconCalendar
-                        style={{ width: rem(16), height: rem(16) }}
-                        stroke={1.5}
-                      />
-                      <Text size="sm">
-                        <Text span fw={500}>
-                          Start:
-                        </Text>{" "}
-                        {startDate.format("DD.MM.YYYY")}
-                        {!isActive && daysUntilStart > 0 && (
-                          <Text span c="dimmed">
-                            {" "}
-                            (in {daysUntilStart} days)
-                          </Text>
-                        )}
-                      </Text>
-                    </Group>
-                  </Group>
-                </Stack>
-
-                <Group gap="xs" wrap="nowrap">
-                  {isActive ? (
-                    <Badge color="green" variant="light" size="lg">
-                      Active
-                    </Badge>
-                  ) : (
-                    <Badge color="blue" variant="light" size="lg">
-                      Pending
-                    </Badge>
-                  )}
-                  <Tooltip label="Edit project">
-                    <ActionIcon
-                      variant="subtle"
-                      color="blue"
-                      onClick={() => handleEdit(project)}
-                    >
-                      <IconEdit
-                        style={{ width: rem(16), height: rem(16) }}
-                        stroke={1.5}
-                      />
-                    </ActionIcon>
-                  </Tooltip>
-                  <Tooltip label="Delete project">
-                    <ActionIcon
-                      variant="subtle"
-                      color="red"
-                      onClick={() => handleDelete(project.id)}
-                    >
-                      <IconTrash
-                        style={{ width: rem(16), height: rem(16) }}
-                        stroke={1.5}
-                      />
-                    </ActionIcon>
-                  </Tooltip>
-                </Group>
-              </Group>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    gap: 0.5, 
+                    justifyContent: { xs: 'flex-start', sm: 'flex-end' },
+                    flex: { sm: 0.5 }
+                  }}>
+                    <Tooltip title="Edit project">
+                      <IconButton
+                        size="small"
+                        onClick={() => handleEdit(project)}
+                        sx={{ 
+                          color: 'primary.main',
+                          '&:hover': { backgroundColor: 'primary.light', color: 'white' }
+                        }}
+                      >
+                        <EditIcon sx={{ fontSize: 18 }} />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete project">
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDelete(project.id)}
+                        sx={{ 
+                          color: 'error.main',
+                          '&:hover': { backgroundColor: 'error.light', color: 'white' }
+                        }}
+                      >
+                        <DeleteIcon sx={{ fontSize: 18 }} />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </Box>
+              </CardContent>
             </Card>
           );
         })}
       </Stack>
 
-      {/* Edit Project Modal */}
       {editingProject && (
         <EditProjectModal
           opened={editModalOpened}

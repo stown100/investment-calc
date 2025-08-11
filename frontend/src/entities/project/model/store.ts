@@ -1,8 +1,6 @@
 import { create } from "zustand";
 import { Project } from "./types";
 import * as projectApi from "../api/projectApi";
-import { notifications } from "@mantine/notifications";
-import { IconPlus, IconEdit, IconTrash, IconBuilding } from "@tabler/icons-react";
 
 interface ProjectState {
   projects: Project[];
@@ -71,14 +69,6 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     set({ searchQuery: search });
     get().fetchProjects(undefined, undefined, undefined, search).then(() => {
       console.log('Search completed, projects count:', get().projects.length); // Debug log
-      if (search.trim() !== '') {
-        notifications.show({
-          title: "Search Results",
-          message: `Found ${get().projects.length} projects matching "${search}"`,
-          color: "blue",
-          icon: IconBuilding({ size: 16 }),
-        });
-      }
     });
   },
 }));

@@ -9,21 +9,24 @@ import {
 } from "../model/calculator";
 import {
   Paper,
-  Title,
-  MultiSelect,
-  Group,
-  Stack,
-  ThemeIcon,
-  rem,
-  Tabs,
+  Typography,
+  Box,
+  FormControl,
+  InputLabel,
   Select,
-} from "@mantine/core";
+  MenuItem,
+  Tabs,
+  Tab,
+  Chip,
+  Stack,
+  OutlinedInput,
+} from "@mui/material";
 import {
-  IconCalculator,
-  IconBuilding,
-  IconDashboard,
-  IconTable,
-} from "@tabler/icons-react";
+  Calculate as CalculateIcon,
+  Business as BusinessIcon,
+  Dashboard as DashboardIcon,
+  TableChart as TableChartIcon,
+} from "@mui/icons-material";
 import { Dashboard } from "./Dashboard";
 import { UnifiedTable } from "./UnifiedTable";
 
@@ -33,27 +36,10 @@ export const Calculator = () => {
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [yearsToShow, setYearsToShow] = useState(10);
 
-  // Options for project selection with "Select All" option
-  const projectOptions = [
-    {
-      value: "select-all",
-      label: "Select All",
-      description: "Select all available projects for calculation",
-    },
-    ...projects.map((project) => ({
-      value: project.id,
-      label: project.name,
-      description: `${
-        project.annualPercent
-      }% per year | $${project.investedAmount.toLocaleString("en-US", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}`,
-    })),
-  ];
-
   // Handle project selection with "Select All" logic
-  const handleProjectSelection = (value: string[]) => {
+  const handleProjectSelection = (event: any) => {
+    const value = event.target.value;
+
     // Check if "select-all" is being selected
     if (value.includes("select-all")) {
       // If "select-all" is selected, select all actual projects
@@ -61,7 +47,7 @@ export const Calculator = () => {
       setSelectedProjects(allProjectIds);
     } else {
       // Remove "select-all" if it was previously selected and now deselected
-      const filteredValue = value.filter((v) => v !== "select-all");
+      const filteredValue = value.filter((v: string) => v !== "select-all");
       setSelectedProjects(filteredValue);
     }
   };
@@ -88,91 +74,152 @@ export const Calculator = () => {
   const growthData = generateGrowthChartData(selectedProjectsData, yearsToShow);
 
   const yearOptions = [
-    { value: "5", label: "5 Years" },
-    { value: "10", label: "10 Years" },
-    { value: "15", label: "15 Years" },
-    { value: "20", label: "20 Years" },
+    { value: 5, label: "5 Years" },
+    { value: 10, label: "10 Years" },
+    { value: 15, label: "15 Years" },
+    { value: 20, label: "20 Years" },
   ];
+
+  const [tabValue, setTabValue] = useState(0);
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
 
   return (
     <Paper
-      shadow="sm"
-      p="xs"
-      radius="sm"
-      withBorder
-      style={{ width: "100%", overflow: "hidden" }}
+      elevation={2}
+      sx={{
+        p: 1.5,
+        borderRadius: 2,
+        width: "100%",
+        overflow: "hidden",
+      }}
     >
-      <Stack gap="xs">
-        <Group justify="space-between" align="center">
-          <Group gap="xs">
-            <ThemeIcon size="sm" variant="light" color="blue">
-              <IconCalculator style={{ width: rem(14), height: rem(14) }} />
-            </ThemeIcon>
-            <Title order={6}>Investment Calculator</Title>
-          </Group>
-          <Select
-            label="Time Period"
-            value={yearsToShow.toString()}
-            onChange={(value) => setYearsToShow(parseInt(value || "10"))}
-            data={yearOptions}
-            w={100}
-            size="xs"
-          />
-        </Group>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <CalculateIcon sx={{ fontSize: 18, color: "primary.main" }} />
+            <Typography variant="h6" component="h3" sx={{ fontWeight: 500 }}>
+              Investment Calculator
+            </Typography>
+          </Box>
+          <FormControl size="small" sx={{ width: 120 }}>
+            <InputLabel>Time Period</InputLabel>
+            <Select
+              value={yearsToShow}
+              onChange={(e) => setYearsToShow(e.target.value as number)}
+              label="Time Period"
+              sx={{ borderRadius: 2 }}
+            >
+              {yearOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
 
-        <MultiSelect
-          label="Select Projects"
-          placeholder="Choose projects to calculate"
-          data={projectOptions}
-          value={selectedProjects}
-          onChange={handleProjectSelection}
-          searchable
-          clearable
-          size="xs"
-          leftSection={
-            <IconBuilding
-              style={{ width: rem(12), height: rem(12) }}
-              stroke={1.5}
-            />
-          }
-        />
+        <FormControl fullWidth size="small">
+          <InputLabel>Select Projects</InputLabel>
+          <Select
+            multiple
+            value={selectedProjects}
+            onChange={handleProjectSelection}
+            input={<OutlinedInput label="Select Projects" />}
+            renderValue={(selected) => (
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                {selected.map((value) => {
+                  const project = projects.find((p) => p.id === value);
+                  return (
+                    <Chip
+                      key={value}
+                      label={project?.name || value}
+                      size="small"
+                      sx={{ borderRadius: 1 }}
+                    />
+                  );
+                })}
+              </Box>
+            )}
+            sx={{ borderRadius: 2 }}
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  maxHeight: 300, // Максимальная высота 300px
+                },
+              },
+            }}
+          >
+            <MenuItem value="select-all">
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, py: 0.5 }}
+              >
+                <BusinessIcon sx={{ fontSize: 16, color: "primary.main" }} />
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  Select All Projects
+                </Typography>
+              </Box>
+            </MenuItem>
+            {projects.map((project) => (
+              <MenuItem key={project.id} value={project.id}>
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  {project.name}
+                </Typography>
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         {selectedProjects.length > 0 && (
-          <Tabs defaultValue="dashboard">
-            <Tabs.List>
-              <Tabs.Tab
-                value="dashboard"
-                leftSection={<IconDashboard size={12} />}
-              >
-                Dashboard
-              </Tabs.Tab>
-              <Tabs.Tab value="analysis" leftSection={<IconTable size={12} />}>
-                Analysis
-              </Tabs.Tab>
-            </Tabs.List>
-
-            <Tabs.Panel value="dashboard" pt="xs">
-              <Dashboard
-                summary={dashboardSummary}
-                portfolioData={portfolioData}
-                growthData={growthData}
-                yearsToShow={yearsToShow}
+          <Box sx={{ borderTop: 1, borderColor: "divider", pt: 1 }}>
+            <Tabs
+              value={tabValue}
+              onChange={handleTabChange}
+              sx={{ minHeight: 40 }}
+            >
+              <Tab
+                icon={<DashboardIcon sx={{ fontSize: 16 }} />}
+                label="Dashboard"
+                sx={{ minHeight: 40, textTransform: "none" }}
               />
-            </Tabs.Panel>
-
-            <Tabs.Panel value="analysis" pt="xs">
-              <UnifiedTable
-                periodResults={results}
-                yearlyData={yearlyData}
-                yearsToShow={yearsToShow}
-                onYearsChange={(value) =>
-                  setYearsToShow(parseInt(value || "10"))
-                }
+              <Tab
+                icon={<TableChartIcon sx={{ fontSize: 16 }} />}
+                label="Analysis"
+                sx={{ minHeight: 40, textTransform: "none" }}
               />
-            </Tabs.Panel>
-          </Tabs>
+            </Tabs>
+
+            <Box sx={{ pt: 1 }}>
+              {tabValue === 0 && (
+                <Dashboard
+                  summary={dashboardSummary}
+                  portfolioData={portfolioData}
+                  growthData={growthData}
+                  yearsToShow={yearsToShow}
+                />
+              )}
+              {tabValue === 1 && (
+                <UnifiedTable
+                  periodResults={results}
+                  yearlyData={yearlyData}
+                  yearsToShow={yearsToShow}
+                  onYearsChange={(value) =>
+                    setYearsToShow(parseInt(value || "10"))
+                  }
+                />
+              )}
+            </Box>
+          </Box>
         )}
-      </Stack>
+      </Box>
     </Paper>
   );
 };

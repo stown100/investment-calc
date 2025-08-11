@@ -7,18 +7,16 @@ export interface CalculationPeriod {
 // Result of calculation for a period
 export interface CalculationResult {
   period: string;
-  percentage: number;
-  amount: number;
+  returnPercentage: number;
+  returnAmount: number;
 }
 
 // Yearly calculation result with detailed breakdown
 export interface YearlyCalculation {
   year: number;
-  initialAmount: number;
-  percentageIncome: number;
-  additionalInvestment: number;
-  finalAmount: number;
-  totalReturn: number;
+  totalValue: number;
+  growth: number;
+  annualReturn: number;
 }
 
 // Dashboard summary data
