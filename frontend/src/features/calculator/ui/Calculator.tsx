@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useProjectStore } from "../../../entities/project/model/store";
-import { 
-  calculateAllPeriods, 
-  calculateYearlyBreakdown, 
-  generateDashboardSummary, 
-  generatePortfolioChartData, 
-  generateGrowthChartData 
+import {
+  calculateAllPeriods,
+  calculateYearlyBreakdown,
+  generateDashboardSummary,
+  generatePortfolioChartData,
+  generateGrowthChartData,
 } from "../model/calculator";
 import {
   Paper,
@@ -33,28 +33,58 @@ export const Calculator = () => {
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [yearsToShow, setYearsToShow] = useState(10);
 
-  // Options for project selection
-  const projectOptions = projects.map((project) => ({
-    value: project.id,
-    label: project.name,
-    description: `${
-      project.annualPercent
-    }% per year | $${project.investedAmount.toLocaleString("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`,
-  }));
+  // Options for project selection with "Select All" option
+  const projectOptions = [
+    {
+      value: "select-all",
+      label: "Select All",
+      description: "Select all available projects for calculation",
+    },
+    ...projects.map((project) => ({
+      value: project.id,
+      label: project.name,
+      description: `${
+        project.annualPercent
+      }% per year | $${project.investedAmount.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`,
+    })),
+  ];
 
-  // Get selected projects data
+  // Handle project selection with "Select All" logic
+  const handleProjectSelection = (value: string[]) => {
+    // Check if "select-all" is being selected
+    if (value.includes("select-all")) {
+      // If "select-all" is selected, select all actual projects
+      const allProjectIds = projects.map((p) => p.id);
+      setSelectedProjects(allProjectIds);
+    } else {
+      // Remove "select-all" if it was previously selected and now deselected
+      const filteredValue = value.filter((v) => v !== "select-all");
+      setSelectedProjects(filteredValue);
+    }
+  };
+
+  // Get selected projects data (filter out the "select-all" option)
   const selectedProjectsData = projects.filter((p) =>
     selectedProjects.includes(p.id)
   );
 
   // Calculate all data
   const results = calculateAllPeriods(selectedProjectsData);
-  const yearlyData = calculateYearlyBreakdown(selectedProjectsData, yearsToShow);
-  const dashboardSummary = generateDashboardSummary(selectedProjectsData, yearsToShow);
-  const portfolioData = generatePortfolioChartData(selectedProjectsData, yearsToShow);
+  const yearlyData = calculateYearlyBreakdown(
+    selectedProjectsData,
+    yearsToShow
+  );
+  const dashboardSummary = generateDashboardSummary(
+    selectedProjectsData,
+    yearsToShow
+  );
+  const portfolioData = generatePortfolioChartData(
+    selectedProjectsData,
+    yearsToShow
+  );
   const growthData = generateGrowthChartData(selectedProjectsData, yearsToShow);
 
   const yearOptions = [
@@ -95,7 +125,7 @@ export const Calculator = () => {
           placeholder="Choose projects to calculate"
           data={projectOptions}
           value={selectedProjects}
-          onChange={setSelectedProjects}
+          onChange={handleProjectSelection}
           searchable
           clearable
           size="xs"
@@ -110,7 +140,10 @@ export const Calculator = () => {
         {selectedProjects.length > 0 && (
           <Tabs defaultValue="dashboard">
             <Tabs.List>
-              <Tabs.Tab value="dashboard" leftSection={<IconDashboard size={12} />}>
+              <Tabs.Tab
+                value="dashboard"
+                leftSection={<IconDashboard size={12} />}
+              >
                 Dashboard
               </Tabs.Tab>
               <Tabs.Tab value="analysis" leftSection={<IconTable size={12} />}>
@@ -119,7 +152,7 @@ export const Calculator = () => {
             </Tabs.List>
 
             <Tabs.Panel value="dashboard" pt="xs">
-              <Dashboard 
+              <Dashboard
                 summary={dashboardSummary}
                 portfolioData={portfolioData}
                 growthData={growthData}
@@ -128,11 +161,13 @@ export const Calculator = () => {
             </Tabs.Panel>
 
             <Tabs.Panel value="analysis" pt="xs">
-              <UnifiedTable 
+              <UnifiedTable
                 periodResults={results}
                 yearlyData={yearlyData}
                 yearsToShow={yearsToShow}
-                onYearsChange={(value) => setYearsToShow(parseInt(value || "10"))}
+                onYearsChange={(value) =>
+                  setYearsToShow(parseInt(value || "10"))
+                }
               />
             </Tabs.Panel>
           </Tabs>
