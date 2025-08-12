@@ -1,11 +1,11 @@
 import React from "react";
-import { Typography, Box, Stack, Card, CardContent, Chip } from "@mui/material";
+import { Typography, Box, Stack, CardContent, Chip } from "@mui/material";
+import { StyledCard } from "../../../shared/ui/StyledCard";
 import {
   Business as BusinessIcon,
   Percent as PercentIcon,
   AttachMoney as MoneyIcon,
   PieChart as PieChartIcon,
-  ShowChart as ChartIcon,
 } from "@mui/icons-material";
 import { Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { DashboardSummary, PortfolioChartData } from "../model/types";
@@ -31,7 +31,6 @@ export const Dashboard = ({
   summary,
   portfolioData,
   growthData,
-  yearsToShow,
 }: DashboardProps) => {
   const pieData = portfolioData.map((item, index) => ({
     name: item.projectName,
@@ -44,7 +43,7 @@ export const Dashboard = ({
       {/* Summary Cards - Ultra Compact */}
       <Box sx={{ display: "flex", gap: 1 }}>
         <Box sx={{ flex: 1 }}>
-          <Card elevation={1} sx={{ borderRadius: 2 }}>
+          <StyledCard>
             <CardContent sx={{ p: 1, "&:last-child": { pb: 1 } }}>
               <Box
                 sx={{
@@ -74,11 +73,11 @@ export const Dashboard = ({
                 })}
               </Typography>
             </CardContent>
-          </Card>
+          </StyledCard>
         </Box>
 
         <Box sx={{ flex: 1 }}>
-          <Card elevation={1} sx={{ borderRadius: 2 }}>
+          <StyledCard>
             <CardContent sx={{ p: 1, "&:last-child": { pb: 1 } }}>
               <Box
                 sx={{
@@ -104,7 +103,7 @@ export const Dashboard = ({
                 {summary.averageAnnualPercent.toFixed(1)}%
               </Typography>
             </CardContent>
-          </Card>
+          </StyledCard>
         </Box>
       </Box>
 
@@ -116,7 +115,7 @@ export const Dashboard = ({
 
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {/* Portfolio Distribution Pie Chart */}
-          <Card elevation={1} sx={{ borderRadius: 2 }}>
+          <StyledCard>
             <CardContent sx={{ p: 1.5 }}>
               <Box
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
@@ -196,7 +195,7 @@ export const Dashboard = ({
                         return (
                           <Box
                             sx={{
-                              backgroundColor: "white",
+                              backgroundColor: "background.paper",
                               border: `2px solid ${data.color}`,
                               borderRadius: 1,
                               p: 1,
@@ -211,7 +210,7 @@ export const Dashboard = ({
                             </Typography>
                             <Typography
                               variant="caption"
-                              color="text.secondary"
+                              sx={{ color: "text.primary" }}
                             >
                               $
                               {data.value.toLocaleString("en-US", {
@@ -229,7 +228,7 @@ export const Dashboard = ({
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>
-          </Card>
+          </StyledCard>
 
           {/* Growth Line Chart */}
 

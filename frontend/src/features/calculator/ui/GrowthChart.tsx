@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Paper, Card, CardContent, useTheme } from "@mui/material";
+import { Box, Typography, Paper, CardContent, useTheme } from "@mui/material";
 import { TrendingUp as TrendingUpIcon } from "@mui/icons-material";
 import {
   AreaChart,
@@ -10,6 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { StyledCard } from "../../../shared/ui/StyledCard";
 
 interface GrowthChartProps {
   data: { name: string; invested: number; projected: number }[];
@@ -21,7 +22,7 @@ export const GrowthChart = ({
   title = "Growth Over Time",
 }: GrowthChartProps) => {
   const theme = useTheme();
-  
+
   // Цвета для графика в стиле примера
   const colors = {
     invested: {
@@ -35,36 +36,34 @@ export const GrowthChart = ({
   };
 
   // Адаптивные цвета для осей в зависимости от темы
-  const axisColor = theme.palette.mode === 'dark' 
-    ? 'hsl(240 5.9% 80%)'  // Светлый для темной темы
-    : 'hsl(240 5.9% 20%)'; // Темный для светлой темы
+  const axisColor =
+    theme.palette.mode === "dark"
+      ? "hsl(240 5.9% 80%)" // Светлый для темной темы
+      : "hsl(240 5.9% 20%)"; // Темный для светлой темы
 
-  const gridColor = theme.palette.mode === 'dark'
-    ? 'hsl(240 5.9% 70%)'  // Светлый для темной темы
-    : 'hsl(240 5.9% 30%)'; // Темный для светлой темы
+  const gridColor =
+    theme.palette.mode === "dark"
+      ? "hsl(240 5.9% 70%)" // Светлый для темной темы
+      : "hsl(240 5.9% 30%)"; // Темный для светлой темы
 
   return (
-    <Card elevation={1} sx={{ borderRadius: 3, overflow: "hidden" }}>
+    <StyledCard elevation={1} sx={{ borderRadius: 2, overflow: "hidden" }}>
       <CardContent sx={{ p: 0 }}>
         {/* Заголовок с иконкой */}
         <Box
           sx={{
             p: 2,
             pb: 1,
-            background: theme.palette.mode === 'dark' 
-              ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
-              : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-            borderBottom: `1px solid ${theme.palette.divider}`,
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <TrendingUpIcon sx={{ fontSize: 20, color: "primary.main" }} />
-            <Typography 
-              variant="h6" 
-              sx={{ 
-                fontWeight: 400, 
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 400,
                 fontSize: 14,
-                color: theme.palette.mode === 'dark' ? 'white' : 'text.primary'
+                color: theme.palette.mode === "dark" ? "white" : "text.primary",
               }}
             >
               {title}
@@ -159,18 +158,22 @@ export const GrowthChart = ({
                           p: 2,
                           border: `1px solid ${theme.palette.divider}`,
                           borderRadius: 2,
-                          background: theme.palette.mode === 'dark' 
-                            ? 'rgba(30, 41, 59, 0.95)'
-                            : 'rgba(255, 255, 255, 0.95)',
+                          background:
+                            theme.palette.mode === "dark"
+                              ? "rgba(30, 41, 59, 0.95)"
+                              : "rgba(255, 255, 255, 0.95)",
                           backdropFilter: "blur(10px)",
                         }}
                       >
                         <Typography
                           variant="body2"
-                          sx={{ 
-                            fontWeight: 600, 
-                            mb: 1.5, 
-                            color: theme.palette.mode === 'dark' ? 'white' : '#1e293b'
+                          sx={{
+                            fontWeight: 600,
+                            mb: 1.5,
+                            color:
+                              theme.palette.mode === "dark"
+                                ? "white"
+                                : "#1e293b",
                           }}
                         >
                           {label}
@@ -200,18 +203,24 @@ export const GrowthChart = ({
                             />
                             <Typography
                               variant="body2"
-                              sx={{ 
-                                fontWeight: 500, 
-                                color: theme.palette.mode === 'dark' ? '#cbd5e1' : '#475569'
+                              sx={{
+                                fontWeight: 500,
+                                color:
+                                  theme.palette.mode === "dark"
+                                    ? "#cbd5e1"
+                                    : "#475569",
                               }}
                             >
                               {entry.name}:
                             </Typography>
                             <Typography
                               variant="body2"
-                              sx={{ 
-                                fontWeight: 600, 
-                                color: theme.palette.mode === 'dark' ? 'white' : '#1e293b'
+                              sx={{
+                                fontWeight: 600,
+                                color:
+                                  theme.palette.mode === "dark"
+                                    ? "white"
+                                    : "#1e293b",
                               }}
                             >
                               $
@@ -267,6 +276,6 @@ export const GrowthChart = ({
           </ResponsiveContainer>
         </Box>
       </CardContent>
-    </Card>
+    </StyledCard>
   );
 };

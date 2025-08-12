@@ -13,10 +13,6 @@ import {
   Chip,
   Tabs,
   Tab,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
 } from "@mui/material";
 import {
   CalendarToday as CalendarIcon,
@@ -28,6 +24,7 @@ import {
   TableChart as TableIcon,
 } from "@mui/icons-material";
 import { CalculationResult, YearlyCalculation } from "../model/types";
+import { StyledCard } from "../../../shared/ui/StyledCard";
 
 interface UnifiedTableProps {
   periodResults: CalculationResult[];
@@ -36,11 +33,10 @@ interface UnifiedTableProps {
   onYearsChange: (value: string | null) => void;
 }
 
-export const UnifiedTable = ({ 
-  periodResults, 
-  yearlyData, 
-  yearsToShow, 
-  onYearsChange 
+export const UnifiedTable = ({
+  periodResults,
+  yearlyData,
+  yearsToShow,
 }: UnifiedTableProps) => {
   const [tabValue, setTabValue] = useState(0);
 
@@ -49,25 +45,63 @@ export const UnifiedTable = ({
   };
 
   return (
-    <Paper elevation={2} sx={{ p: 1.5, borderRadius: 2 }}>
+    <StyledCard elevation={2} sx={{ p: 1.5, borderRadius: 2 }}>
       <Stack spacing={1}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <CalculateIcon sx={{ fontSize: 16, color: 'primary.main' }} />
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <CalculateIcon sx={{ fontSize: 16, color: "primary.main" }} />
           <Typography variant="h6" component="h3" sx={{ fontWeight: 500 }}>
             Investment Analysis ({yearsToShow} Years)
           </Typography>
         </Box>
 
-        <Tabs value={tabValue} onChange={handleTabChange} sx={{ minHeight: 40 }}>
-          <Tab 
-            icon={<ChartIcon sx={{ fontSize: 14 }} />} 
-            label="Period Returns" 
-            sx={{ minHeight: 40, textTransform: 'none' }}
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          sx={{
+            minHeight: 40,
+            "& .MuiTab-root": {
+              outline: "none",
+              "&:focus": {
+                outline: "none",
+              },
+              "&.Mui-focusVisible": {
+                outline: "none",
+                boxShadow: "none",
+              },
+            },
+          }}
+        >
+          <Tab
+            icon={<ChartIcon sx={{ fontSize: 14 }} />}
+            label="Period Returns"
+            sx={{
+              minHeight: 40,
+              textTransform: "none",
+              outline: "none",
+              "&:focus": {
+                outline: "none",
+              },
+              "&.Mui-focusVisible": {
+                outline: "none",
+                boxShadow: "none",
+              },
+            }}
           />
-          <Tab 
-            icon={<TableIcon sx={{ fontSize: 14 }} />} 
-            label="Yearly Breakdown" 
-            sx={{ minHeight: 40, textTransform: 'none' }}
+          <Tab
+            icon={<TableIcon sx={{ fontSize: 14 }} />}
+            label="Yearly Breakdown"
+            sx={{
+              minHeight: 40,
+              textTransform: "none",
+              outline: "none",
+              "&:focus": {
+                outline: "none",
+              },
+              "&.Mui-focusVisible": {
+                outline: "none",
+                boxShadow: "none",
+              },
+            }}
           />
         </Tabs>
 
@@ -77,25 +111,43 @@ export const UnifiedTable = ({
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ width: "40%", backgroundColor: 'background.paper' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <CalendarIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                    <TableCell
+                      sx={{ width: "40%", backgroundColor: "background.paper" }}
+                    >
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <CalendarIcon
+                          sx={{ fontSize: 14, color: "text.secondary" }}
+                        />
                         <Typography variant="body2" sx={{ fontWeight: 500 }}>
                           Period
                         </Typography>
                       </Box>
                     </TableCell>
-                    <TableCell sx={{ width: "30%", backgroundColor: 'background.paper' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <PercentIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                    <TableCell
+                      sx={{ width: "30%", backgroundColor: "background.paper" }}
+                    >
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <PercentIcon
+                          sx={{ fontSize: 14, color: "text.secondary" }}
+                        />
                         <Typography variant="body2" sx={{ fontWeight: 500 }}>
                           Return %
                         </Typography>
                       </Box>
                     </TableCell>
-                    <TableCell sx={{ width: "30%", backgroundColor: 'background.paper' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <MoneyIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                    <TableCell
+                      sx={{ width: "30%", backgroundColor: "background.paper" }}
+                    >
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <MoneyIcon
+                          sx={{ fontSize: 14, color: "text.secondary" }}
+                        />
                         <Typography variant="body2" sx={{ fontWeight: 500 }}>
                           Return Amount
                         </Typography>
@@ -117,12 +169,16 @@ export const UnifiedTable = ({
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                          {result.returnPercentage.toFixed(2)}%
+                          {result.returnPercentage?.toFixed(2) || "0.00"}%
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'success.main' }}>
-                          ${result.returnAmount.toLocaleString("en-US", {
+                        <Typography
+                          variant="body2"
+                          sx={{ fontWeight: 600, color: "success.main" }}
+                        >
+                          $
+                          {(result.returnAmount || 0).toLocaleString("en-US", {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           })}
@@ -137,54 +193,53 @@ export const UnifiedTable = ({
 
           {tabValue === 1 && (
             <Box>
-              <Box sx={{ mb: 2 }}>
-                <FormControl size="small" sx={{ minWidth: 120 }}>
-                  <InputLabel>Years to Show</InputLabel>
-                  <Select
-                    value={yearsToShow.toString()}
-                    onChange={(e) => onYearsChange(e.target.value)}
-                    label="Years to Show"
-                    sx={{ borderRadius: 2 }}
-                  >
-                    <MenuItem value="5">5 Years</MenuItem>
-                    <MenuItem value="10">10 Years</MenuItem>
-                    <MenuItem value="15">15 Years</MenuItem>
-                    <MenuItem value="20">20 Years</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
-
               <TableContainer sx={{ maxHeight: 400 }}>
                 <Table stickyHeader size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ backgroundColor: 'background.paper' }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <CalendarIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                      <TableCell sx={{ backgroundColor: "background.paper" }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <CalendarIcon
+                            sx={{ fontSize: 14, color: "text.secondary" }}
+                          />
                           <Typography variant="body2" sx={{ fontWeight: 500 }}>
                             Year
                           </Typography>
                         </Box>
                       </TableCell>
-                      <TableCell sx={{ backgroundColor: 'background.paper' }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <MoneyIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                      <TableCell sx={{ backgroundColor: "background.paper" }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <MoneyIcon
+                            sx={{ fontSize: 14, color: "text.secondary" }}
+                          />
                           <Typography variant="body2" sx={{ fontWeight: 500 }}>
                             Total Value
                           </Typography>
                         </Box>
                       </TableCell>
-                      <TableCell sx={{ backgroundColor: 'background.paper' }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <TrendingUpIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                      <TableCell sx={{ backgroundColor: "background.paper" }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <TrendingUpIcon
+                            sx={{ fontSize: 14, color: "text.secondary" }}
+                          />
                           <Typography variant="body2" sx={{ fontWeight: 500 }}>
                             Growth
                           </Typography>
                         </Box>
                       </TableCell>
-                      <TableCell sx={{ backgroundColor: 'background.paper' }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <PercentIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                      <TableCell sx={{ backgroundColor: "background.paper" }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <PercentIcon
+                            sx={{ fontSize: 14, color: "text.secondary" }}
+                          />
                           <Typography variant="body2" sx={{ fontWeight: 500 }}>
                             Annual Return
                           </Typography>
@@ -202,35 +257,47 @@ export const UnifiedTable = ({
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            ${yearData.totalValue.toLocaleString("en-US", {
+                            $
+                            {(yearData.totalValue || 0).toLocaleString(
+                              "en-US",
+                              {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }
+                            )}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontWeight: 500,
+                              color:
+                                yearData.growth >= 0
+                                  ? "success.main"
+                                  : "error.main",
+                            }}
+                          >
+                            {yearData.growth >= 0 ? "+" : ""}$
+                            {(yearData.growth || 0).toLocaleString("en-US", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
                             })}
                           </Typography>
                         </TableCell>
                         <TableCell>
-                          <Typography 
-                            variant="body2" 
-                            sx={{ 
+                          <Typography
+                            variant="body2"
+                            sx={{
                               fontWeight: 500,
-                              color: yearData.growth >= 0 ? 'success.main' : 'error.main'
+                              color:
+                                yearData.annualReturn >= 0
+                                  ? "success.main"
+                                  : "error.main",
                             }}
                           >
-                            {yearData.growth >= 0 ? '+' : ''}${yearData.growth.toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography 
-                            variant="body2" 
-                            sx={{ 
-                              fontWeight: 500,
-                              color: yearData.annualReturn >= 0 ? 'success.main' : 'error.main'
-                            }}
-                          >
-                            {yearData.annualReturn >= 0 ? '+' : ''}{yearData.annualReturn.toFixed(2)}%
+                            {yearData.annualReturn >= 0 ? "+" : ""}
+                            {(yearData.annualReturn || 0).toFixed(2)}%
                           </Typography>
                         </TableCell>
                       </TableRow>
@@ -242,6 +309,6 @@ export const UnifiedTable = ({
           )}
         </Box>
       </Stack>
-    </Paper>
+    </StyledCard>
   );
-}; 
+};

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useProjectStore } from "../model/store";
 import {
-  Card,
   CardContent,
   Typography,
   Chip,
@@ -22,6 +21,7 @@ import dayjs from "dayjs";
 import { Project } from "../model/types";
 import { EditProjectModal } from "../../../features/edit-project/ui/EditProjectModal";
 import { useNotification } from "../../../shared/context/NotificationContext";
+import { StyledCard } from "../../../shared/ui/StyledCard";
 
 // Displays the list of investment projects
 export const ProjectList = () => {
@@ -71,16 +71,20 @@ export const ProjectList = () => {
 
   if (projects.length === 0) {
     return (
-      <Box sx={{ 
-        textAlign: 'center', 
-        py: 4,
-        color: 'text.secondary'
-      }}>
+      <Box
+        sx={{
+          textAlign: "center",
+          py: 4,
+          color: "text.secondary",
+        }}
+      >
         <Typography variant="h6" gutterBottom>
           No projects found
         </Typography>
         <Typography variant="body2">
-          {searchQuery ? `No projects match "${searchQuery}"` : "Start by adding your first investment project"}
+          {searchQuery
+            ? `No projects match "${searchQuery}"`
+            : "Start by adding your first investment project"}
         </Typography>
       </Box>
     );
@@ -95,34 +99,49 @@ export const ProjectList = () => {
           const daysUntilStart = startDate.diff(now, "day");
 
           return (
-            <Card
+            <StyledCard
               key={project.id}
               elevation={2}
               sx={{
                 borderRadius: 2,
-                transition: 'all 0.2s ease-in-out',
-                '&:hover': {
+                transition: "all 0.2s ease-in-out",
+                "&:hover": {
                   elevation: 4,
-                  transform: 'translateY(-2px)',
-                }
+                  transform: "translateY(-2px)",
+                },
               }}
             >
               <CardContent sx={{ p: 2 }}>
-                <Box sx={{ 
-                  display: 'flex', 
-                  flexDirection: { xs: 'column', sm: 'row' },
-                  gap: 2, 
-                  alignItems: { xs: 'flex-start', sm: 'center' }
-                }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", sm: "row" },
+                    gap: 2,
+                    alignItems: { xs: "flex-start", sm: "center" },
+                  }}
+                >
                   <Box sx={{ flex: { sm: 2 }, minWidth: 0 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                      <BusinessIcon sx={{ fontSize: 20, color: 'primary.main' }} />
-                      <Typography variant="h6" component="h3" sx={{ fontWeight: 500 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        mb: 1,
+                      }}
+                    >
+                      <BusinessIcon
+                        sx={{ fontSize: 20, color: "primary.main" }}
+                      />
+                      <Typography
+                        variant="h6"
+                        component="h3"
+                        sx={{ fontWeight: 500 }}
+                      >
                         {project.name}
                       </Typography>
                     </Box>
-                    
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+
+                    <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                       <Chip
                         label={isActive ? "Active" : "Pending"}
                         color={isActive ? "success" : "warning"}
@@ -140,14 +159,24 @@ export const ProjectList = () => {
                   </Box>
 
                   <Box sx={{ flex: { sm: 1 }, minWidth: 0 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                      <MoneyIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        mb: 1,
+                      }}
+                    >
+                      <MoneyIcon
+                        sx={{ fontSize: 16, color: "text.secondary" }}
+                      />
                       <Typography variant="body2" color="text.secondary">
                         Investment Amount
                       </Typography>
                     </Box>
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      ${project.investedAmount.toLocaleString("en-US", {
+                      $
+                      {project.investedAmount.toLocaleString("en-US", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
@@ -155,8 +184,17 @@ export const ProjectList = () => {
                   </Box>
 
                   <Box sx={{ flex: { sm: 1 }, minWidth: 0 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                      <CalendarIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        mb: 1,
+                      }}
+                    >
+                      <CalendarIcon
+                        sx={{ fontSize: 16, color: "text.secondary" }}
+                      />
                       <Typography variant="body2" color="text.secondary">
                         Start Date
                       </Typography>
@@ -166,24 +204,31 @@ export const ProjectList = () => {
                     </Typography>
                     {!isActive && (
                       <Typography variant="caption" color="text.secondary">
-                        {daysUntilStart > 0 ? `in ${daysUntilStart} days` : 'today'}
+                        {daysUntilStart > 0
+                          ? `in ${daysUntilStart} days`
+                          : "today"}
                       </Typography>
                     )}
                   </Box>
 
-                  <Box sx={{ 
-                    display: 'flex', 
-                    gap: 0.5, 
-                    justifyContent: { xs: 'flex-start', sm: 'flex-end' },
-                    flex: { sm: 0.5 }
-                  }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 0.5,
+                      justifyContent: { xs: "flex-start", sm: "flex-end" },
+                      flex: { sm: 0.5 },
+                    }}
+                  >
                     <Tooltip title="Edit project">
                       <IconButton
                         size="small"
                         onClick={() => handleEdit(project)}
-                        sx={{ 
-                          color: 'primary.main',
-                          '&:hover': { backgroundColor: 'primary.light', color: 'white' }
+                        sx={{
+                          color: "primary.main",
+                          "&:hover": {
+                            backgroundColor: "primary.light",
+                            color: "white",
+                          },
                         }}
                       >
                         <EditIcon sx={{ fontSize: 18 }} />
@@ -193,9 +238,12 @@ export const ProjectList = () => {
                       <IconButton
                         size="small"
                         onClick={() => handleDelete(project.id)}
-                        sx={{ 
-                          color: 'error.main',
-                          '&:hover': { backgroundColor: 'error.light', color: 'white' }
+                        sx={{
+                          color: "error.main",
+                          "&:hover": {
+                            backgroundColor: "error.light",
+                            color: "white",
+                          },
                         }}
                       >
                         <DeleteIcon sx={{ fontSize: 18 }} />
@@ -204,7 +252,7 @@ export const ProjectList = () => {
                   </Box>
                 </Box>
               </CardContent>
-            </Card>
+            </StyledCard>
           );
         })}
       </Stack>

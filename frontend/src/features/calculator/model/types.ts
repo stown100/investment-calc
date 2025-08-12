@@ -17,6 +17,12 @@ export interface YearlyCalculation {
   totalValue: number;
   growth: number;
   annualReturn: number;
+  // Добавляем недостающие поля для совместимости
+  initialAmount?: number;
+  percentageIncome?: number;
+  additionalInvestment?: number;
+  finalAmount?: number;
+  totalReturn?: number;
 }
 
 // Dashboard summary data

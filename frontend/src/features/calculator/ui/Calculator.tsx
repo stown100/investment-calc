@@ -8,7 +8,6 @@ import {
   generateGrowthChartData,
 } from "../model/calculator";
 import {
-  Paper,
   Typography,
   Box,
   FormControl,
@@ -17,8 +16,6 @@ import {
   MenuItem,
   Tabs,
   Tab,
-  Chip,
-  Stack,
   OutlinedInput,
 } from "@mui/material";
 import {
@@ -26,9 +23,11 @@ import {
   Business as BusinessIcon,
   Dashboard as DashboardIcon,
   TableChart as TableChartIcon,
+  Close as CloseIcon,
 } from "@mui/icons-material";
 import { Dashboard } from "./Dashboard";
 import { UnifiedTable } from "./UnifiedTable";
+import { StyledCard } from "../../../shared/ui/StyledCard";
 
 // Calculator for investment returns
 export const Calculator = () => {
@@ -87,7 +86,7 @@ export const Calculator = () => {
   };
 
   return (
-    <Paper
+    <StyledCard
       elevation={2}
       sx={{
         p: 1.5,
@@ -135,18 +134,75 @@ export const Calculator = () => {
             onChange={handleProjectSelection}
             input={<OutlinedInput label="Select Projects" />}
             renderValue={(selected) => (
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                {selected.map((value) => {
-                  const project = projects.find((p) => p.id === value);
-                  return (
-                    <Chip
-                      key={value}
-                      label={project?.name || value}
-                      size="small"
-                      sx={{ borderRadius: 1 }}
-                    />
-                  );
-                })}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  width: "100%",
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{
+                    flex: 1,
+                    color:
+                      selected.length === 0 ? "text.secondary" : "text.primary",
+                    fontWeight: selected.length === 0 ? 400 : 500,
+                  }}
+                >
+                  {selected.length === 0
+                    ? `Select projects to analyze (${projects.length} available)`
+                    : `${selected.length} project${
+                        selected.length === 1 ? "" : "s"
+                      } selected`}
+                </Typography>
+                {selected.length > 0 && (
+                  <Box
+                    component="button"
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSelectedProjects([]);
+                    }}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    sx={{
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: 24,
+                      height: 24,
+                      borderRadius: "50%",
+                      backgroundColor: "action.hover",
+                      color: "text.secondary",
+                      border: "1px solid",
+                      borderColor: "divider",
+                      transition: "all 0.2s ease",
+                      transform: "scale(1)",
+                      outline: "none",
+                      padding: 0,
+                      "&:hover": {
+                        backgroundColor: "error.light",
+                        color: "error.contrastText",
+                        borderColor: "error.main",
+                        transform: "scale(1.1)",
+                      },
+                      "&:active": {
+                        transform: "scale(0.95)",
+                      },
+                      "&:focus": {
+                        outline: "none",
+                      },
+                    }}
+                  >
+                    <CloseIcon sx={{ fontSize: "16px" }} />
+                  </Box>
+                )}
               </Box>
             )}
             sx={{ borderRadius: 2 }}
@@ -183,17 +239,51 @@ export const Calculator = () => {
             <Tabs
               value={tabValue}
               onChange={handleTabChange}
-              sx={{ minHeight: 40 }}
+              sx={{
+                minHeight: 40,
+                "& .MuiTab-root": {
+                  outline: "none",
+                  "&:focus": {
+                    outline: "none",
+                  },
+                  "&.Mui-focusVisible": {
+                    outline: "none",
+                    boxShadow: "none",
+                  },
+                },
+              }}
             >
               <Tab
                 icon={<DashboardIcon sx={{ fontSize: 16 }} />}
                 label="Dashboard"
-                sx={{ minHeight: 40, textTransform: "none" }}
+                sx={{
+                  minHeight: 40,
+                  textTransform: "none",
+                  outline: "none",
+                  "&:focus": {
+                    outline: "none",
+                  },
+                  "&.Mui-focusVisible": {
+                    outline: "none",
+                    boxShadow: "none",
+                  },
+                }}
               />
               <Tab
                 icon={<TableChartIcon sx={{ fontSize: 16 }} />}
                 label="Analysis"
-                sx={{ minHeight: 40, textTransform: "none" }}
+                sx={{
+                  minHeight: 40,
+                  textTransform: "none",
+                  outline: "none",
+                  "&:focus": {
+                    outline: "none",
+                  },
+                  "&.Mui-focusVisible": {
+                    outline: "none",
+                    boxShadow: "none",
+                  },
+                }}
               />
             </Tabs>
 
@@ -220,6 +310,6 @@ export const Calculator = () => {
           </Box>
         )}
       </Box>
-    </Paper>
+    </StyledCard>
   );
 };

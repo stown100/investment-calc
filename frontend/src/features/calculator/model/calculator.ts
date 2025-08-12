@@ -32,8 +32,8 @@ export function calculateTotalReturn(
 
   return {
     period: period.label,
-    percentage: (totalReturn / totalInvested) * 100,
-    amount: totalReturn,
+    returnPercentage: (totalReturn / totalInvested) * 100,
+    returnAmount: totalReturn,
   };
 }
 
@@ -51,18 +51,24 @@ export function calculateYearlyBreakdown(
 ): YearlyCalculation[] {
   const yearlyData: YearlyCalculation[] = [];
   let currentAmount = projects.reduce((sum, p) => sum + p.investedAmount, 0);
-  const averageAnnualPercent = projects.length > 0
-    ? projects.reduce((sum, p) => sum + p.annualPercent, 0) / projects.length
-    : 0;
+  const averageAnnualPercent =
+    projects.length > 0
+      ? projects.reduce((sum, p) => sum + p.annualPercent, 0) / projects.length
+      : 0;
 
   for (let year = 1; year <= years; year++) {
     const percentageIncome = currentAmount * (averageAnnualPercent / 100);
     const additionalInvestment = 0; // Can be made configurable later
     const finalAmount = currentAmount + percentageIncome + additionalInvestment;
-    const totalReturn = finalAmount - projects.reduce((sum, p) => sum + p.investedAmount, 0);
+    const totalReturn =
+      finalAmount - projects.reduce((sum, p) => sum + p.investedAmount, 0);
 
     yearlyData.push({
       year,
+      totalValue: finalAmount,
+      growth: percentageIncome,
+      annualReturn: (percentageIncome / currentAmount) * 100,
+      // Дополнительные поля для совместимости
       initialAmount: currentAmount,
       percentageIncome,
       additionalInvestment,
@@ -77,14 +83,19 @@ export function calculateYearlyBreakdown(
 }
 
 // Generate dashboard summary
-export function generateDashboardSummary(projects: Project[], years: number = 10): DashboardSummary {
+export function generateDashboardSummary(
+  projects: Project[],
+  years: number = 10
+): DashboardSummary {
   const totalInvested = projects.reduce((sum, p) => sum + p.investedAmount, 0);
-  const averageAnnualPercent = projects.length > 0
-    ? projects.reduce((sum, p) => sum + p.annualPercent, 0) / projects.length
-    : 0;
-  
+  const averageAnnualPercent =
+    projects.length > 0
+      ? projects.reduce((sum, p) => sum + p.annualPercent, 0) / projects.length
+      : 0;
+
   // Calculate projected value after selected years
-  const projectedValue = totalInvested * Math.pow(1 + averageAnnualPercent / 100, years);
+  const projectedValue =
+    totalInvested * Math.pow(1 + averageAnnualPercent / 100, years);
   const totalReturn = projectedValue - totalInvested;
   const totalReturnPercentage = (totalReturn / totalInvested) * 100;
 
@@ -99,13 +110,17 @@ export function generateDashboardSummary(projects: Project[], years: number = 10
 }
 
 // Generate portfolio chart data
-export function generatePortfolioChartData(projects: Project[], years: number = 10): PortfolioChartData[] {
+export function generatePortfolioChartData(
+  projects: Project[],
+  years: number = 10
+): PortfolioChartData[] {
   const totalInvested = projects.reduce((sum, p) => sum + p.investedAmount, 0);
-  
-  return projects.map(project => {
-    const projectedValue = project.investedAmount * Math.pow(1 + project.annualPercent / 100, years);
+
+  return projects.map((project) => {
+    const projectedValue =
+      project.investedAmount * Math.pow(1 + project.annualPercent / 100, years);
     const percentage = (project.investedAmount / totalInvested) * 100;
-    
+
     return {
       projectName: project.name,
       investedAmount: project.investedAmount,
@@ -121,11 +136,14 @@ export function generateGrowthChartData(
   years: number = 10
 ): { name: string; invested: number; projected: number }[] {
   const yearlyData = calculateYearlyBreakdown(projects, years);
-  const totalInitialInvestment = projects.reduce((sum, p) => sum + p.investedAmount, 0);
-  
-  return yearlyData.map(data => ({
+  const totalInitialInvestment = projects.reduce(
+    (sum, p) => sum + p.investedAmount,
+    0
+  );
+
+  return yearlyData.map((data) => ({
     name: `Year ${data.year}`,
     invested: totalInitialInvestment,
-    projected: data.finalAmount,
+    projected: data.finalAmount || data.totalValue || totalInitialInvestment,
   }));
 }
