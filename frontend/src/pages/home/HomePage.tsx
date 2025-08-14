@@ -15,7 +15,6 @@ import { Calculator } from "../../features/calculator/ui/Calculator";
 import { InvestmentSummary } from "../../features/investment-summary/ui/InvestmentSummary";
 import { AddProjectModal } from "../../features/add-project/ui/AddProjectModal";
 import { ThemeToggle } from "../../shared/ui/ThemeToggle";
-import { NotificationDemo } from "../../shared/ui/NotificationDemo";
 
 // Main page of the application
 export const HomePage = () => {
@@ -97,9 +96,6 @@ export const HomePage = () => {
           </Box>
           <Box sx={{ flex: { lg: 1 } }}>
             <Calculator />
-            <Box sx={{ mt: 2 }}>
-              <NotificationDemo />
-            </Box>
           </Box>
         </Box>
 
