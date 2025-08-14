@@ -3,12 +3,10 @@ import { openDb } from './db';
 
 const router = Router();
 
-// Get all projects with sorting, status filtering and search
+// Get all projects with sorting, status filtering, search and pagination
 router.get('/', async (req, res) => {
-  const { sortBy, sortOrder, status, search } = req.query;
+  const { sortBy, sortOrder, status, search, limit = '10', offset = '0' } = req.query;
   const db = await openDb();
-  
-  console.log('Search query:', search); // Debug log
   
   let query = 'SELECT * FROM projects';
   let params: any[] = [];
@@ -17,7 +15,6 @@ router.get('/', async (req, res) => {
   // Add search filtering
   if (search && typeof search === 'string' && search.trim() !== '') {
     const searchTerm = search.trim();
-    console.log('Search term:', searchTerm); // Debug log
     
     // Simple LIKE search - more precise
     conditions.push('LOWER(name) LIKE LOWER(?)');
@@ -48,12 +45,26 @@ router.get('/', async (req, res) => {
     }
   }
   
-  console.log('Final query:', query); // Debug log
-  console.log('Query params:', params); // Debug log
+  // Add pagination
+  const limitNum = parseInt(limit as string) || 10;
+  const offsetNum = parseInt(offset as string) || 0;
+  
+  // Validate pagination parameters
+  if (limitNum < 1 || limitNum > 100) {
+    return res.status(400).json({ error: 'Limit must be between 1 and 100' });
+  }
+  if (offsetNum < 0) {
+    return res.status(400).json({ error: 'Offset must be non-negative' });
+  }
+  
+  // Build pagination query
+  if (offsetNum === 0) {
+    query += ` LIMIT ${limitNum}`;
+  } else {
+    query += ` LIMIT ${limitNum} OFFSET ${offsetNum}`;
+  }
   
   const projects = await db.all(query, params);
-  console.log('Found projects:', projects.length); // Debug log
-  console.log('First few projects:', projects.slice(0, 3).map(p => p.name)); // Debug log
   
   res.json(projects);
 });

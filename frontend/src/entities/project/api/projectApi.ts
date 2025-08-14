@@ -7,6 +7,8 @@ export interface SortParams {
   sortOrder?: string;
   status?: string;
   search?: string;
+  limit?: number;
+  offset?: number;
 }
 
 export async function getAllProjects(
@@ -25,6 +27,12 @@ export async function getAllProjects(
   }
   if (sortParams?.search) {
     url.searchParams.append("search", sortParams.search);
+  }
+  if (sortParams?.limit) {
+    url.searchParams.append("limit", sortParams.limit.toString());
+  }
+  if (sortParams?.offset) {
+    url.searchParams.append("offset", sortParams.offset.toString());
   }
 
   const res = await fetch(url.toString());
