@@ -1,6 +1,12 @@
 import React from "react";
-import { Modal, Title, Group, ThemeIcon, rem } from "@mantine/core";
-import { IconBuilding } from "@tabler/icons-react";
+import { 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  Box, 
+  Typography 
+} from "@mui/material";
+import { Business as BusinessIcon } from "@mui/icons-material";
 import { AddProjectForm } from "./AddProjectForm";
 
 interface AddProjectModalProps {
@@ -11,32 +17,28 @@ interface AddProjectModalProps {
 // Modal dialog for adding a new project
 export const AddProjectModal = ({ opened, onClose }: AddProjectModalProps) => {
   return (
-    <Modal
-      opened={opened}
+    <Dialog
+      open={opened}
       onClose={onClose}
-      size="sm"
-      centered
-      transitionProps={{
-        transition: "fade",
-        duration: 200,
-        timingFunction: "ease",
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 2,
+        }
       }}
-      styles={{
-        inner: {
-          position: "fixed",
-          left: 0,
-        },
-      }}
-      title={
-        <Group gap="sm">
-          <ThemeIcon size="lg" radius="md" variant="light">
-            <IconBuilding style={{ width: rem(20), height: rem(20) }} />
-          </ThemeIcon>
-          <Title order={3}>Add New Project</Title>
-        </Group>
-      }
     >
-      <AddProjectForm onSuccess={onClose} />
-    </Modal>
+      <DialogTitle>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <BusinessIcon sx={{ fontSize: 24, color: 'primary.main' }} />
+          <Typography variant="h5" component="h2" sx={{ fontWeight: 500 }}>
+            Add New Project
+          </Typography>
+        </Box>
+      </DialogTitle>
+      <DialogContent>
+        <AddProjectForm onSuccess={onClose} />
+      </DialogContent>
+    </Dialog>
   );
 };

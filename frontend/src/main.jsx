@@ -2,15 +2,16 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
-import "@mantine/core/styles.css";
-import "@mantine/notifications/styles.css";
 import "./app.scss";
-import { MantineProvider } from "@mantine/core";
+import { ThemeProvider } from './theme/ThemeContext';
+import { NotificationProvider } from './shared/context/NotificationContext';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <MantineProvider withGlobalStyles withNormalizeCSS>
-      <App />
-    </MantineProvider>
+    <ThemeProvider>
+      <NotificationProvider>
+        <App />
+      </NotificationProvider>
+    </ThemeProvider>
   </StrictMode>,
 )

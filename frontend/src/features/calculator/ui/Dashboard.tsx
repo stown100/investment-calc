@@ -1,42 +1,15 @@
 import React from "react";
+import { Typography, Box, Stack, CardContent, Chip } from "@mui/material";
+import { StyledCard } from "../../../shared/ui/StyledCard";
 import {
-  Paper,
-  Title,
-  Group,
-  Stack,
-  NumberFormatter,
-  Badge,
-  ThemeIcon,
-  rem,
-  Grid,
-  Text,
-  Card,
-  RingProgress,
-} from "@mantine/core";
-import {
-  IconCalculator,
-  IconTrendingUp,
-  IconBuilding,
-  IconPercentage,
-  IconCoin,
-  IconChartPie,
-  IconChartLine,
-} from "@tabler/icons-react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar,
-} from "recharts";
+  Business as BusinessIcon,
+  Percent as PercentIcon,
+  AttachMoney as MoneyIcon,
+  PieChart as PieChartIcon,
+} from "@mui/icons-material";
+import { Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { DashboardSummary, PortfolioChartData } from "../model/types";
+import { GrowthChart } from "./GrowthChart";
 
 interface DashboardProps {
   summary: DashboardSummary;
@@ -58,7 +31,6 @@ export const Dashboard = ({
   summary,
   portfolioData,
   growthData,
-  yearsToShow,
 }: DashboardProps) => {
   const pieData = portfolioData.map((item, index) => ({
     name: item.projectName,
@@ -67,174 +39,215 @@ export const Dashboard = ({
   }));
 
   return (
-    <Stack gap="xs">
+    <Stack spacing={1}>
       {/* Summary Cards - Ultra Compact */}
-      <Grid gutter="xs">
-        <Grid.Col span={6}>
-          <Card shadow="sm" padding="xs" radius="sm" withBorder>
-            <Group gap="xs" mb="xs">
-              <ThemeIcon size="xs" variant="light" color="blue">
-                <IconCoin style={{ width: rem(10), height: rem(10) }} />
-              </ThemeIcon>
-              <Text size="xs" c="dimmed">
-                Total Invested
-              </Text>
-            </Group>
-            <Text
-              size="xs"
-              fw={700}
-              c="blue.6"
-              style={{ whiteSpace: "nowrap" }}
-            >
-              <NumberFormatter
-                value={summary.totalInvested}
-                prefix="$"
-                thousandSeparator=" "
-                decimalScale={0}
-              />
-            </Text>
-          </Card>
-        </Grid.Col>
-
-        <Grid.Col span={6}>
-          <Card shadow="sm" padding="xs" radius="sm" withBorder>
-            <Group gap="xs" mb="xs">
-              <ThemeIcon size="xs" variant="light" color="green">
-                <IconPercentage style={{ width: rem(10), height: rem(10) }} />
-              </ThemeIcon>
-              <Text size="xs" c="dimmed">
-                Avg. Annual %
-              </Text>
-            </Group>
-            <Text size="xs" fw={700} c="green.6">
-              <NumberFormatter
-                value={summary.averageAnnualPercent}
-                suffix="%"
-                decimalScale={1}
-              />
-            </Text>
-          </Card>
-        </Grid.Col>
-
-        <Grid.Col span={6}>
-          <Card shadow="sm" padding="xs" radius="sm" withBorder>
-            <Group gap="xs" mb="xs">
-              <ThemeIcon size="xs" variant="light" color="orange">
-                <IconTrendingUp style={{ width: rem(10), height: rem(10) }} />
-              </ThemeIcon>
-              <Text size="xs" c="dimmed">
-                Total Return
-              </Text>
-            </Group>
-            <Text
-              size="xs"
-              fw={700}
-              c="orange.6"
-              style={{ whiteSpace: "nowrap" }}
-            >
-              <NumberFormatter
-                value={summary.totalReturn}
-                prefix="$"
-                thousandSeparator=" "
-                decimalScale={0}
-              />
-            </Text>
-          </Card>
-        </Grid.Col>
-
-        <Grid.Col span={6}>
-          <Card shadow="sm" padding="xs" radius="sm" withBorder>
-            <Group gap="xs" mb="xs">
-              <ThemeIcon size="xs" variant="light" color="purple">
-                <IconBuilding style={{ width: rem(10), height: rem(10) }} />
-              </ThemeIcon>
-              <Text size="xs" c="dimmed">
-                Projects
-              </Text>
-            </Group>
-            <Text size="xs" fw={700} c="purple.6">
-              {summary.numberOfProjects}
-            </Text>
-          </Card>
-        </Grid.Col>
-      </Grid>
-
-      {/* Portfolio Growth Chart - Above Distribution */}
-      <Paper shadow="sm" p="xs" radius="sm" withBorder>
-        <Group gap="xs" mb="xs">
-          <ThemeIcon size="xs" variant="light" color="blue">
-            <IconChartLine style={{ width: rem(12), height: rem(12) }} />
-          </ThemeIcon>
-          <Title order={6}>Portfolio Growth ({yearsToShow} Years)</Title>
-        </Group>
-        <ResponsiveContainer width="100%" height={120}>
-          <LineChart data={growthData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" fontSize={9} />
-            <YAxis fontSize={9} />
-            <Tooltip
-              formatter={(value: number, name: string) => [
-                `$${value.toLocaleString("en-US", {
+      <Box sx={{ display: "flex", gap: 1 }}>
+        <Box sx={{ flex: 1 }}>
+          <StyledCard>
+            <CardContent sx={{ p: 1, "&:last-child": { pb: 1 } }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                  mb: 0.5,
+                }}
+              >
+                <MoneyIcon sx={{ fontSize: 12, color: "primary.main" }} />
+                <Typography variant="caption" color="text.secondary">
+                  Total Invested
+                </Typography>
+              </Box>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: 700,
+                  color: "primary.main",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                $
+                {summary.totalInvested.toLocaleString("en-US", {
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 0,
-                })}`,
-                name,
-              ]}
-            />
-            <Line
-              type="monotone"
-              dataKey="invested"
-              stroke="#8884d8"
-              strokeWidth={2}
-              name="Initial"
-            />
-            <Line
-              type="monotone"
-              dataKey="projected"
-              stroke="#82ca9d"
-              strokeWidth={2}
-              name="Total"
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </Paper>
+                })}
+              </Typography>
+            </CardContent>
+          </StyledCard>
+        </Box>
 
-      {/* Portfolio Distribution Chart - Below Growth */}
-      <Paper shadow="sm" p="xs" radius="sm" withBorder>
-        <Group gap="xs" mb="xs">
-          <ThemeIcon size="xs" variant="light" color="green">
-            <IconChartPie style={{ width: rem(12), height: rem(12) }} />
-          </ThemeIcon>
-          <Title order={6}>Portfolio Distribution</Title>
-        </Group>
-        <ResponsiveContainer width="100%" height={120}>
-          <PieChart>
-            <Pie
-              data={pieData}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={({ percent }) => `${((percent || 0) * 100).toFixed(0)}%`}
-              outerRadius={40}
-              fill="#8884d8"
-              dataKey="value"
-            >
-              {pieData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip
-              formatter={(value: number) => [
-                `$${value.toLocaleString("en-US", {
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0,
-                })}`,
-                "Amount",
-              ]}
-            />
-          </PieChart>
-        </ResponsiveContainer>
-      </Paper>
+        <Box sx={{ flex: 1 }}>
+          <StyledCard>
+            <CardContent sx={{ p: 1, "&:last-child": { pb: 1 } }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                  mb: 0.5,
+                }}
+              >
+                <PercentIcon sx={{ fontSize: 12, color: "success.main" }} />
+                <Typography variant="caption" color="text.secondary">
+                  Annual Return
+                </Typography>
+              </Box>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: 700,
+                  color: "success.main",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {summary.averageAnnualPercent.toFixed(1)}%
+              </Typography>
+            </CardContent>
+          </StyledCard>
+        </Box>
+      </Box>
+
+      {/* Charts Section */}
+      <Box sx={{ mt: 1 }}>
+        <Typography variant="h6" component="h4" sx={{ fontWeight: 500, mb: 1 }}>
+          Portfolio Overview
+        </Typography>
+
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {/* Portfolio Distribution Pie Chart */}
+          <StyledCard>
+            <CardContent sx={{ p: 1.5 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+              >
+                <PieChartIcon sx={{ fontSize: 16, color: "primary.main" }} />
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  Portfolio Distribution
+                </Typography>
+              </Box>
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({
+                      cx,
+                      cy,
+                      midAngle,
+                      innerRadius,
+                      outerRadius,
+                      percent,
+                    }) => {
+                      const RADIAN = Math.PI / 180;
+                      const safeCx = cx || 0;
+                      const safeCy = cy || 0;
+                      const safeMidAngle = midAngle || 0;
+                      const safeInnerRadius = innerRadius || 0;
+                      const safeOuterRadius = outerRadius || 0;
+
+                      const radius =
+                        safeInnerRadius +
+                        (safeOuterRadius - safeInnerRadius) * 0.8; // Ближе к кругу
+                      const x =
+                        safeCx + radius * Math.cos(-safeMidAngle * RADIAN);
+                      const y =
+                        safeCy + radius * Math.sin(-safeMidAngle * RADIAN);
+
+                      return (
+                        <text
+                          x={x}
+                          y={y}
+                          fill="white"
+                          textAnchor="middle"
+                          dominantBaseline="central"
+                          style={{
+                            fontSize: "12px",
+                            fontWeight: "bold",
+                            textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
+                          }}
+                        >
+                          {`${((percent || 0) * 100).toFixed(0)}%`}
+                        </text>
+                      );
+                    }}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        const total = pieData.reduce(
+                          (sum, item) => sum + item.value,
+                          0
+                        );
+                        const percentage = ((data.value / total) * 100).toFixed(
+                          1
+                        );
+
+                        return (
+                          <Box
+                            sx={{
+                              backgroundColor: "background.paper",
+                              border: `2px solid ${data.color}`,
+                              borderRadius: 1,
+                              p: 1,
+                              boxShadow: 2,
+                            }}
+                          >
+                            <Typography
+                              variant="body2"
+                              sx={{ fontWeight: 500, color: data.color }}
+                            >
+                              {data.name}
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              sx={{ color: "text.primary" }}
+                            >
+                              $
+                              {data.value.toLocaleString("en-US", {
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
+                              })}{" "}
+                              ({percentage}%)
+                            </Typography>
+                          </Box>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </StyledCard>
+
+          {/* Growth Line Chart */}
+
+          <GrowthChart data={growthData} />
+        </Box>
+
+        {/* Project Count Badge */}
+        <Box sx={{ mt: 1, textAlign: "center" }}>
+          <Chip
+            icon={<BusinessIcon />}
+            label={`${summary.numberOfProjects} Project${
+              summary.numberOfProjects !== 1 ? "s" : ""
+            }`}
+            color="primary"
+            variant="outlined"
+            size="small"
+          />
+        </Box>
+      </Box>
     </Stack>
   );
 };

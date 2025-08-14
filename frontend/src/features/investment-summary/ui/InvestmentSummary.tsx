@@ -1,7 +1,12 @@
 import React from "react";
 import { useProjectStore } from "../../../entities/project/model/store";
-import { Paper, Group, Text, NumberFormatter, Stack, rem } from "@mantine/core";
-import { IconBuilding, IconPercentage, IconCoin } from "@tabler/icons-react";
+import { Box, Typography, Stack } from "@mui/material";
+import {
+  Business as BusinessIcon,
+  Percent as PercentIcon,
+  AttachMoney as MoneyIcon,
+} from "@mui/icons-material";
+import { StyledCard } from "../../../shared/ui/StyledCard";
 
 // Displays a summary of all investments
 export const InvestmentSummary = () => {
@@ -27,68 +32,71 @@ export const InvestmentSummary = () => {
       : 0;
 
   return (
-    <Stack gap="xs" mb="sm">
-      <Paper shadow="sm" p="xs" withBorder>
-        <Group gap="sm">
-          <Group gap="xs">
-            <IconBuilding
-              style={{ width: rem(14), height: rem(14) }}
-              stroke={1.5}
-            />
-            <Text size="xs" c="dimmed">
+    <Stack spacing={1} sx={{ mb: 2 }}>
+      <StyledCard elevation={1} sx={{ p: 1.5, borderRadius: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            flexWrap: "wrap",
+            alignItems: "center",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <BusinessIcon sx={{ fontSize: 14, color: "text.secondary" }} />
+            <Typography variant="caption" color="text.secondary">
               Total Projects:
-            </Text>
-            <Text fw={500} size="xs">{projects.length}</Text>
-          </Group>
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 500, ml: 0.5 }}>
+              {projects.length}
+            </Typography>
+          </Box>
 
-          <Group gap="xs">
-            <IconPercentage
-              style={{ width: rem(14), height: rem(14) }}
-              stroke={1.5}
-            />
-            <Text size="xs" c="dimmed">
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <PercentIcon sx={{ fontSize: 14, color: "text.secondary" }} />
+            <Typography variant="caption" color="text.secondary">
               Average Percent:
-            </Text>
-            <Text fw={500} size="xs">{averagePercent.toFixed(2)}%</Text>
-          </Group>
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 500, ml: 0.5 }}>
+              {averagePercent.toFixed(2)}%
+            </Typography>
+          </Box>
 
-          <Group gap="xs">
-            <IconCoin
-              style={{ width: rem(14), height: rem(14) }}
-              stroke={1.5}
-            />
-            <Text size="xs" c="dimmed">
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <MoneyIcon sx={{ fontSize: 14, color: "text.secondary" }} />
+            <Typography variant="caption" color="text.secondary">
               Total Investment:
-            </Text>
-            <Text fw={500} size="xs" style={{ whiteSpace: 'nowrap' }}>
-              <NumberFormatter
-                value={totalInvested}
-                prefix="$"
-                thousandSeparator=" "
-                decimalScale={0}
-              />
-            </Text>
-          </Group>
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ fontWeight: 500, ml: 0.5, whiteSpace: "nowrap" }}
+            >
+              $
+              {totalInvested.toLocaleString("en-US", {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              })}
+            </Typography>
+          </Box>
 
-          <Group gap="xs">
-            <IconCoin
-              style={{ width: rem(14), height: rem(14) }}
-              stroke={1.5}
-            />
-            <Text size="xs" c="dimmed">
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <MoneyIcon sx={{ fontSize: 14, color: "text.secondary" }} />
+            <Typography variant="caption" color="text.secondary">
               Active Investments:
-            </Text>
-            <Text fw={500} size="xs" style={{ whiteSpace: 'nowrap' }}>
-              <NumberFormatter
-                value={activeInvested}
-                prefix="$"
-                thousandSeparator=" "
-                decimalScale={0}
-              />
-            </Text>
-          </Group>
-        </Group>
-      </Paper>
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ fontWeight: 500, ml: 0.5, whiteSpace: "nowrap" }}
+            >
+              $
+              {activeInvested.toLocaleString("en-US", {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              })}
+            </Typography>
+          </Box>
+        </Box>
+      </StyledCard>
     </Stack>
   );
 };

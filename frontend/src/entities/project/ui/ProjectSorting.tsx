@@ -1,5 +1,5 @@
 import React from "react";
-import { Select, Text } from "@mantine/core";
+import { FormControl, InputLabel, Select, MenuItem, Typography, Box } from "@mui/material";
 import { useProjectStore } from "../model/store";
 
 export interface SortOption {
@@ -23,7 +23,7 @@ export const ProjectSorting = () => {
 
   const currentValue = `${sortBy}-${sortOrder}`;
 
-  const handleSortChange = (value: string | null) => {
+  const handleSortChange = (value: string) => {
     if (value) {
       const [newSortBy, newSortOrder] = value.split("-");
       setSorting(newSortBy, newSortOrder);
@@ -31,18 +31,27 @@ export const ProjectSorting = () => {
   };
 
   return (
-    <div>
-      <Text size="sm" fw={500} mb={4}>
+    <Box>
+      <Typography variant="body2" sx={{ fontWeight: 500, mb: 0.5 }}>
         Sort by:
-      </Text>
-      <Select
-        data={sortOptions}
-        value={currentValue}
-        onChange={handleSortChange}
-        placeholder="Select sorting option"
-        size="xs"
-        style={{ minWidth: 250 }}
-      />
-    </div>
+      </Typography>
+      <FormControl size="small" sx={{ minWidth: 250 }}>
+        <InputLabel>Select sorting option</InputLabel>
+        <Select
+          value={currentValue}
+          onChange={(e) => handleSortChange(e.target.value)}
+          label="Select sorting option"
+          sx={{
+            borderRadius: 2,
+          }}
+        >
+          {sortOptions.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </Box>
   );
 };

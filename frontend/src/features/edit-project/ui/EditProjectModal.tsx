@@ -1,6 +1,12 @@
 import React from "react";
-import { Modal, Title, Group, ThemeIcon, rem } from "@mantine/core";
-import { IconEdit } from "@tabler/icons-react";
+import { 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  Box, 
+  Typography 
+} from "@mui/material";
+import { Edit as EditIcon } from "@mui/icons-material";
 import { EditProjectForm } from "./EditProjectForm";
 import { Project } from "../../../entities/project/model/types";
 
@@ -13,32 +19,28 @@ interface EditProjectModalProps {
 // Modal dialog for editing an existing project
 export const EditProjectModal = ({ opened, onClose, project }: EditProjectModalProps) => {
   return (
-    <Modal
-      opened={opened}
+    <Dialog
+      open={opened}
       onClose={onClose}
-      size="sm"
-      centered
-      transitionProps={{
-        transition: "fade",
-        duration: 200,
-        timingFunction: "ease",
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 2,
+        }
       }}
-      styles={{
-        inner: {
-          position: "fixed",
-          left: 0,
-        },
-      }}
-      title={
-        <Group gap="sm">
-          <ThemeIcon size="lg" radius="md" variant="light" color="blue">
-            <IconEdit style={{ width: rem(20), height: rem(20) }} />
-          </ThemeIcon>
-          <Title order={3}>Edit Project</Title>
-        </Group>
-      }
     >
-      <EditProjectForm project={project} onSuccess={onClose} />
-    </Modal>
+      <DialogTitle>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <EditIcon sx={{ fontSize: 24, color: 'primary.main' }} />
+          <Typography variant="h5" component="h2" sx={{ fontWeight: 500 }}>
+            Edit Project
+          </Typography>
+        </Box>
+      </DialogTitle>
+      <DialogContent>
+        <EditProjectForm project={project} onSuccess={onClose} />
+      </DialogContent>
+    </Dialog>
   );
 };

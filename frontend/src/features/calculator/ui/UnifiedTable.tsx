@@ -1,29 +1,30 @@
 import React, { useState } from "react";
 import {
   Paper,
-  Title,
+  Typography,
   Table,
-  Text,
-  Group,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Box,
   Stack,
-  NumberFormatter,
-  Badge,
-  ThemeIcon,
-  rem,
-  ScrollArea,
-  Select,
+  Chip,
   Tabs,
-} from "@mantine/core";
+  Tab,
+} from "@mui/material";
 import {
-  IconCalendar,
-  IconCalculator,
-  IconTrendingUp,
-  IconCoin,
-  IconPercentage,
-  IconChartLine,
-  IconTable,
-} from "@tabler/icons-react";
+  CalendarToday as CalendarIcon,
+  Calculate as CalculateIcon,
+  TrendingUp as TrendingUpIcon,
+  AttachMoney as MoneyIcon,
+  Percent as PercentIcon,
+  ShowChart as ChartIcon,
+  TableChart as TableIcon,
+} from "@mui/icons-material";
 import { CalculationResult, YearlyCalculation } from "../model/types";
+import { StyledCard } from "../../../shared/ui/StyledCard";
 
 interface UnifiedTableProps {
   periodResults: CalculationResult[];
@@ -32,235 +33,282 @@ interface UnifiedTableProps {
   onYearsChange: (value: string | null) => void;
 }
 
-export const UnifiedTable = ({ 
-  periodResults, 
-  yearlyData, 
-  yearsToShow, 
-  onYearsChange 
+export const UnifiedTable = ({
+  periodResults,
+  yearlyData,
+  yearsToShow,
 }: UnifiedTableProps) => {
+  const [tabValue, setTabValue] = useState(0);
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+
   return (
-    <Paper shadow="sm" p="xs" radius="sm" withBorder>
-      <Stack gap="xs">
-        <Group gap="xs">
-          <ThemeIcon size="xs" variant="light" color="blue">
-            <IconCalculator style={{ width: rem(14), height: rem(14) }} />
-          </ThemeIcon>
-          <Title order={6}>Investment Analysis ({yearsToShow} Years)</Title>
-        </Group>
+    <StyledCard elevation={2} sx={{ p: 1.5, borderRadius: 2 }}>
+      <Stack spacing={1}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <CalculateIcon sx={{ fontSize: 16, color: "primary.main" }} />
+          <Typography variant="h6" component="h3" sx={{ fontWeight: 500 }}>
+            Investment Analysis ({yearsToShow} Years)
+          </Typography>
+        </Box>
 
-        <Tabs defaultValue="periods">
-          <Tabs.List>
-            <Tabs.Tab value="periods" leftSection={<IconChartLine size={10} />}>
-              Period Returns
-            </Tabs.Tab>
-            <Tabs.Tab value="yearly" leftSection={<IconTable size={10} />}>
-              Yearly Breakdown
-            </Tabs.Tab>
-          </Tabs.List>
-
-          <Tabs.Panel value="periods" pt="xs">
-            <ScrollArea>
-              <div style={{ minWidth: 0 }}>
-                <Table striped highlightOnHover withTableBorder withColumnBorders verticalSpacing="xs">
-                  <Table.Thead>
-                    <Table.Tr>
-                      <Table.Th style={{ width: "40%" }}>
-                        <Group gap="xs">
-                          <IconCalendar
-                            style={{ width: rem(12), height: rem(12) }}
-                            stroke={1.5}
-                          />
-                          <Text size="xs">Period</Text>
-                        </Group>
-                      </Table.Th>
-                      <Table.Th style={{ width: "30%" }}>
-                        <Group gap="xs">
-                          <IconPercentage
-                            style={{ width: rem(12), height: rem(12) }}
-                            stroke={1.5}
-                          />
-                          <Text size="xs">Return %</Text>
-                        </Group>
-                      </Table.Th>
-                      <Table.Th style={{ width: "30%" }}>
-                        <Group gap="xs">
-                          <IconCoin
-                            style={{ width: rem(12), height: rem(12) }}
-                            stroke={1.5}
-                          />
-                          <Text size="xs">Return Amount</Text>
-                        </Group>
-                      </Table.Th>
-                    </Table.Tr>
-                  </Table.Thead>
-                  <Table.Tbody>
-                    {periodResults.map((result) => (
-                      <Table.Tr key={result.period}>
-                        <Table.Td>
-                          <Badge variant="light" color="blue" size="xs">
-                            {result.period}
-                          </Badge>
-                        </Table.Td>
-                        <Table.Td>
-                          <Badge variant="light" color="green" size="xs">
-                            <NumberFormatter
-                              value={result.percentage}
-                              suffix="%"
-                              decimalScale={2}
-                            />
-                          </Badge>
-                        </Table.Td>
-                        <Table.Td>
-                          <Text fw={500} c="blue.6" size="xs" style={{ whiteSpace: 'nowrap' }}>
-                            <NumberFormatter
-                              value={result.amount}
-                              prefix="$"
-                              thousandSeparator=" "
-                              decimalScale={2}
-                            />
-                          </Text>
-                        </Table.Td>
-                      </Table.Tr>
-                    ))}
-                  </Table.Tbody>
-                </Table>
-              </div>
-            </ScrollArea>
-          </Tabs.Panel>
-
-          <Tabs.Panel value="yearly" pt="xs">
-            <ScrollArea>
-              <div style={{ minWidth: 0 }}>
-                <Table striped highlightOnHover withTableBorder withColumnBorders verticalSpacing="xs">
-                  <Table.Thead>
-                    <Table.Tr>
-                      <Table.Th style={{ width: "12%" }}>
-                        <Group gap="xs">
-                          <IconCalendar
-                            style={{ width: rem(12), height: rem(12) }}
-                            stroke={1.5}
-                          />
-                          <Text size="xs">Year</Text>
-                        </Group>
-                      </Table.Th>
-                      <Table.Th style={{ width: "18%" }}>
-                        <Group gap="xs">
-                          <IconCoin
-                            style={{ width: rem(12), height: rem(12) }}
-                            stroke={1.5}
-                          />
-                          <Text size="xs">Initial Amount</Text>
-                        </Group>
-                      </Table.Th>
-                      <Table.Th style={{ width: "18%" }}>
-                        <Group gap="xs">
-                          <IconPercentage
-                            style={{ width: rem(12), height: rem(12) }}
-                            stroke={1.5}
-                          />
-                          <Text size="xs">% Income</Text>
-                        </Group>
-                      </Table.Th>
-                      <Table.Th style={{ width: "18%" }}>
-                        <Group gap="xs">
-                          <IconTrendingUp
-                            style={{ width: rem(12), height: rem(12) }}
-                            stroke={1.5}
-                          />
-                          <Text size="xs">Additional</Text>
-                        </Group>
-                      </Table.Th>
-                      <Table.Th style={{ width: "18%" }}>
-                        <Group gap="xs">
-                          <IconCalculator
-                            style={{ width: rem(12), height: rem(12) }}
-                            stroke={1.5}
-                          />
-                          <Text size="xs">Final Amount</Text>
-                        </Group>
-                      </Table.Th>
-                      <Table.Th style={{ width: "16%" }}>
-                        <Group gap="xs">
-                          <IconTrendingUp
-                            style={{ width: rem(12), height: rem(12) }}
-                            stroke={1.5}
-                          />
-                          <Text size="xs">Total Return</Text>
-                        </Group>
-                      </Table.Th>
-                    </Table.Tr>
-                  </Table.Thead>
-                  <Table.Tbody>
-                    {yearlyData.map((data) => (
-                      <Table.Tr key={data.year}>
-                        <Table.Td>
-                          <Badge variant="light" color="blue" size="xs">
-                            Year {data.year}
-                          </Badge>
-                        </Table.Td>
-                        <Table.Td>
-                          <Text fw={500} c="blue.6" size="xs" style={{ whiteSpace: 'nowrap' }}>
-                            <NumberFormatter
-                              value={data.initialAmount}
-                              prefix="$"
-                              thousandSeparator=" "
-                              decimalScale={0}
-                            />
-                          </Text>
-                        </Table.Td>
-                        <Table.Td>
-                          <Text fw={500} c="green.6" size="xs" style={{ whiteSpace: 'nowrap' }}>
-                            <NumberFormatter
-                              value={data.percentageIncome}
-                              prefix="$"
-                              thousandSeparator=" "
-                              decimalScale={0}
-                            />
-                          </Text>
-                        </Table.Td>
-                        <Table.Td>
-                          <Text fw={500} c="orange.6" size="xs" style={{ whiteSpace: 'nowrap' }}>
-                            <NumberFormatter
-                              value={data.additionalInvestment}
-                              prefix="$"
-                              thousandSeparator=" "
-                              decimalScale={0}
-                            />
-                          </Text>
-                        </Table.Td>
-                        <Table.Td>
-                          <Text fw={700} c="purple.6" size="xs" style={{ whiteSpace: 'nowrap' }}>
-                            <NumberFormatter
-                              value={data.finalAmount}
-                              prefix="$"
-                              thousandSeparator=" "
-                              decimalScale={0}
-                            />
-                          </Text>
-                        </Table.Td>
-                        <Table.Td>
-                          <Text fw={500} c="green.6" size="xs" style={{ whiteSpace: 'nowrap' }}>
-                            <NumberFormatter
-                              value={data.totalReturn}
-                              prefix="$"
-                              thousandSeparator=" "
-                              decimalScale={0}
-                            />
-                          </Text>
-                        </Table.Td>
-                      </Table.Tr>
-                    ))}
-                  </Table.Tbody>
-                </Table>
-              </div>
-            </ScrollArea>
-          </Tabs.Panel>
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          sx={{
+            minHeight: 40,
+            "& .MuiTab-root": {
+              outline: "none",
+              "&:focus": {
+                outline: "none",
+              },
+              "&.Mui-focusVisible": {
+                outline: "none",
+                boxShadow: "none",
+              },
+            },
+          }}
+        >
+          <Tab
+            icon={<ChartIcon sx={{ fontSize: 14 }} />}
+            label="Period Returns"
+            sx={{
+              minHeight: 40,
+              textTransform: "none",
+              outline: "none",
+              "&:focus": {
+                outline: "none",
+              },
+              "&.Mui-focusVisible": {
+                outline: "none",
+                boxShadow: "none",
+              },
+            }}
+          />
+          <Tab
+            icon={<TableIcon sx={{ fontSize: 14 }} />}
+            label="Yearly Breakdown"
+            sx={{
+              minHeight: 40,
+              textTransform: "none",
+              outline: "none",
+              "&:focus": {
+                outline: "none",
+              },
+              "&.Mui-focusVisible": {
+                outline: "none",
+                boxShadow: "none",
+              },
+            }}
+          />
         </Tabs>
 
-        <Text size="xs" c="dimmed" ta="center">
-          * Calculations assume compound interest and do not account for inflation or tax implications
-        </Text>
+        <Box sx={{ pt: 1 }}>
+          {tabValue === 0 && (
+            <TableContainer sx={{ maxHeight: 400 }}>
+              <Table stickyHeader size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell
+                      sx={{ width: "40%", backgroundColor: "background.paper" }}
+                    >
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <CalendarIcon
+                          sx={{ fontSize: 14, color: "text.secondary" }}
+                        />
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          Period
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell
+                      sx={{ width: "30%", backgroundColor: "background.paper" }}
+                    >
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <PercentIcon
+                          sx={{ fontSize: 14, color: "text.secondary" }}
+                        />
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          Return %
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell
+                      sx={{ width: "30%", backgroundColor: "background.paper" }}
+                    >
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <MoneyIcon
+                          sx={{ fontSize: 14, color: "text.secondary" }}
+                        />
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          Return Amount
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {periodResults.map((result) => (
+                    <TableRow key={result.period} hover>
+                      <TableCell>
+                        <Chip
+                          label={result.period}
+                          variant="outlined"
+                          color="primary"
+                          size="small"
+                          sx={{ borderRadius: 1 }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {result.returnPercentage?.toFixed(2) || "0.00"}%
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography
+                          variant="body2"
+                          sx={{ fontWeight: 600, color: "success.main" }}
+                        >
+                          $
+                          {(result.returnAmount || 0).toLocaleString("en-US", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+
+          {tabValue === 1 && (
+            <Box>
+              <TableContainer sx={{ maxHeight: 400 }}>
+                <Table stickyHeader size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ backgroundColor: "background.paper" }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <CalendarIcon
+                            sx={{ fontSize: 14, color: "text.secondary" }}
+                          />
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            Year
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell sx={{ backgroundColor: "background.paper" }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <MoneyIcon
+                            sx={{ fontSize: 14, color: "text.secondary" }}
+                          />
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            Total Value
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell sx={{ backgroundColor: "background.paper" }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <TrendingUpIcon
+                            sx={{ fontSize: 14, color: "text.secondary" }}
+                          />
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            Growth
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell sx={{ backgroundColor: "background.paper" }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <PercentIcon
+                            sx={{ fontSize: 14, color: "text.secondary" }}
+                          />
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            Annual Return
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {yearlyData.map((yearData) => (
+                      <TableRow key={yearData.year} hover>
+                        <TableCell>
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            Year {yearData.year}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            $
+                            {(yearData.totalValue || 0).toLocaleString(
+                              "en-US",
+                              {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }
+                            )}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontWeight: 500,
+                              color:
+                                yearData.growth >= 0
+                                  ? "success.main"
+                                  : "error.main",
+                            }}
+                          >
+                            {yearData.growth >= 0 ? "+" : ""}$
+                            {(yearData.growth || 0).toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontWeight: 500,
+                              color:
+                                yearData.annualReturn >= 0
+                                  ? "success.main"
+                                  : "error.main",
+                            }}
+                          >
+                            {yearData.annualReturn >= 0 ? "+" : ""}
+                            {(yearData.annualReturn || 0).toFixed(2)}%
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+          )}
+        </Box>
       </Stack>
-    </Paper>
+    </StyledCard>
   );
-}; 
+};
