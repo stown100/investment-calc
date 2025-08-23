@@ -11,6 +11,14 @@ export interface SortParams {
   offset?: number;
 }
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("authToken");
+  return {
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
+};
+
 export async function getAllProjects(
   sortParams?: SortParams
 ): Promise<Project[]> {
@@ -35,7 +43,9 @@ export async function getAllProjects(
     url.searchParams.append("offset", sortParams.offset.toString());
   }
 
-  const res = await fetch(url.toString());
+  const res = await fetch(url.toString(), {
+    headers: getAuthHeaders(),
+  });
   if (!res.ok) throw new Error("Failed to fetch projects");
   return res.json();
 }
@@ -43,7 +53,7 @@ export async function getAllProjects(
 export async function addProject(project: Project): Promise<void> {
   const res = await fetch(API_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: getAuthHeaders(),
     body: JSON.stringify(project),
   });
   if (!res.ok) throw new Error("Failed to add project");
@@ -52,7 +62,7 @@ export async function addProject(project: Project): Promise<void> {
 export async function updateProject(project: Project): Promise<void> {
   const res = await fetch(`${API_URL}/${project.id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: getAuthHeaders(),
     body: JSON.stringify(project),
   });
   if (!res.ok) throw new Error("Failed to update project");
@@ -61,6 +71,7 @@ export async function updateProject(project: Project): Promise<void> {
 export async function removeProject(id: string): Promise<void> {
   const res = await fetch(`${API_URL}/${id}`, {
     method: "DELETE",
+    headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error("Failed to delete project");
 }

@@ -1,5 +1,5 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -11,6 +11,42 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Global styles to remove borders on active/focus states */
+*:focus {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+*:active {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove focus borders from Material-UI components */
+.MuiTabs-root .MuiTab-root:focus,
+.MuiTabs-root .MuiTab-root:active,
+.MuiButton-root:focus,
+.MuiButton-root:active,
+.MuiTextField-root .MuiOutlinedInput-root:focus,
+.MuiTextField-root .MuiOutlinedInput-root:active {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove focus borders from form elements */
+input:focus,
+button:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 a {
