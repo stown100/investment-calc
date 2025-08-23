@@ -2,7 +2,7 @@ import { Card } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 // Styled components for enhanced visual appeal
-export const StyledCard = styled(Card)(({ theme }) => ({
+export const StyledCard = styled(Card)(({ theme, style }) => ({
   background:
     theme.palette.mode === "light"
       ? "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)"
@@ -21,6 +21,7 @@ export const StyledCard = styled(Card)(({ theme }) => ({
         ? "0 4px 12px rgba(0, 0, 0, 0.15)"
         : "0 4px 12px rgba(0, 0, 0, 0.4)",
   },
+  ...style,
 }));
 
 // Variant for success/green cards

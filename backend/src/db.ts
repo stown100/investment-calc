@@ -1,16 +1,26 @@
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
+import sqlite3 from "sqlite3";
+import { open } from "sqlite";
+
+export let db: any;
 
 export async function openDb() {
   return open({
-    filename: './database.sqlite',
-    driver: sqlite3.Database
+    filename: "./database.sqlite",
+    driver: sqlite3.Database,
   });
 }
 
 export async function initDb() {
-  const db = await openDb();
+  db = await openDb();
   await db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      email TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL
+    );
+    
     CREATE TABLE IF NOT EXISTS projects (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
@@ -21,4 +31,4 @@ export async function initDb() {
     );
   `);
   return db;
-} 
+}

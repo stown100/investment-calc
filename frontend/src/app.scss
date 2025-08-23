@@ -7,6 +7,101 @@ body {
 
 #root {
   min-height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
+}
+
+/* Custom styles for Material-UI components */
+
+/* Remove focus borders from Tabs */
+.MuiTabs-root {
+  .MuiTab-root {
+    &:focus,
+    &:active {
+      outline: none !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+  }
+}
+
+/* Remove focus borders from Buttons */
+.MuiButton-root {
+  &:focus,
+  &:active {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Remove focus borders from TextField */
+.MuiTextField-root {
+  .MuiOutlinedInput-root {
+    &:focus,
+    &:active {
+      outline: none !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+    
+    .MuiOutlinedInput-notchedOutline {
+      &:focus,
+      &:active {
+        border: none !important;
+        box-shadow: none !important;
+      }
+    }
+  }
+}
+
+/* Remove focus borders from Paper */
+.MuiPaper-root {
+  &:focus,
+  &:active {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Remove focus borders from Box */
+.MuiBox-root {
+  &:focus,
+  &:active {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Remove focus borders from Typography */
+.MuiTypography-root {
+  &:focus,
+  &:active {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Remove focus borders from Alert */
+.MuiAlert-root {
+  &:focus,
+  &:active {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Remove focus borders from CircularProgress */
+.MuiCircularProgress-root {
+  &:focus,
+  &:active {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
 } 
