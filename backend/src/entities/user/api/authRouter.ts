@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { body, validationResult } from "express-validator";
 import { createUser, authenticateUser } from "./userApi";
 import { UserRegistrationData, UserLoginData } from "../types";
+import { authMiddleware, AuthRequest } from "../../../middleware/auth";
 
 const router = Router();
 
@@ -87,6 +88,20 @@ router.post("/login", validateLogin, async (req: Request, res: Response) => {
     } else {
       res.status(500).json({ message: "Internal server error" });
     }
+  }
+});
+
+// Get current user by token
+router.get("/me", authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+
+    const { userId, email } = req.user;
+    return res.json({ id: userId, email });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error" });
   }
 });
 
