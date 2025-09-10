@@ -69,6 +69,34 @@ router.get('/', async (req, res) => {
   res.json(projects);
 });
 
+// Get aggregated summary for all projects
+router.get('/summary', async (req, res) => {
+  const db = await openDb();
+
+  // Total count
+  const totalRow = await db.get('SELECT COUNT(*) as count FROM projects');
+  const totalProjects = totalRow?.count ?? 0;
+
+  // Total investment
+  const totalInvestmentRow = await db.get('SELECT COALESCE(SUM(investedAmount), 0) as total FROM projects');
+  const totalInvestment = totalInvestmentRow?.total ?? 0;
+
+  // Average percent
+  const avgPercentRow = await db.get('SELECT COALESCE(AVG(annualPercent), 0) as avg FROM projects');
+  const averagePercent = avgPercentRow?.avg ?? 0;
+
+  // Active investments (sum where startDate <= today)
+  const activeInvestmentRow = await db.get('SELECT COALESCE(SUM(investedAmount), 0) as total FROM projects WHERE startDate <= date("now")');
+  const activeInvestments = activeInvestmentRow?.total ?? 0;
+
+  res.json({
+    totalProjects,
+    averagePercent,
+    totalInvestment,
+    activeInvestments,
+  });
+});
+
 // Add project
 router.post('/', async (req, res) => {
   const { id, name, annualPercent, startDate, createdAt, investedAmount } = req.body;
