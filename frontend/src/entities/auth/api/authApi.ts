@@ -37,3 +37,27 @@ export const registerUser = async (
 
   return response.json();
 };
+
+export const getCurrentUser = async (): Promise<{ id: string; email: string }> => {
+  const token = localStorage.getItem("authToken");
+  const response = await fetch(`${API_BASE_URL}/auth/me`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!response.ok) {
+    let errorMessage = "Failed to fetch current user";
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorMessage;
+    } catch {}
+    const error: any = new Error(errorMessage);
+    error.status = response.status;
+    throw error;
+  }
+
+  return response.json();
+};

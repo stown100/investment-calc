@@ -12,6 +12,7 @@ import { Header } from "../entities/auth/ui/Header";
 import { Loader } from "../shared/ui/Loader";
 import { useAuthStore } from "../entities/auth/model/store";
 import { NotificationsProvider } from "@toolpad/core/useNotifications";
+import { getCurrentUser } from "../entities/auth/api/authApi";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -51,27 +52,25 @@ const AppLayout: React.FC = () => {
 };
 
 export const AppRouter = () => {
-  const { setLoading, setUser, setToken } = useAuthStore();
+  const { setLoading, setUser, setToken, logout } = useAuthStore();
 
   useEffect(() => {
     const initAuth = () => {
       const storedToken = localStorage.getItem("authToken");
 
       if (storedToken) {
-        try {
-          const payload = JSON.parse(atob(storedToken.split(".")[1]));
-          const user = {
-            id: payload.userId,
-            email: payload.email,
-          };
-
-          setUser(user);
-          setToken(storedToken);
-          setLoading(false);
-        } catch (error) {
-          localStorage.removeItem("authToken");
-          setLoading(false);
-        }
+        // Verify token with backend to avoid trusting local decode
+        setLoading(true);
+        getCurrentUser()
+          .then((user) => {
+            setUser(user);
+            setToken(storedToken);
+            setLoading(false);
+          })
+          .catch(() => {
+            setLoading(false);
+            logout();
+          });
       } else {
         setLoading(false);
       }
