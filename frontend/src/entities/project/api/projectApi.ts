@@ -75,3 +75,18 @@ export async function removeProject(id: string): Promise<void> {
   });
   if (!res.ok) throw new Error("Failed to delete project");
 }
+
+export type ProjectsSummary = {
+  totalProjects: number;
+  averagePercent: number;
+  totalInvestment: number;
+  activeInvestments: number;
+};
+
+export async function getProjectsSummary(): Promise<ProjectsSummary> {
+  const res = await fetch(`${API_URL}/summary`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error("Failed to fetch projects summary");
+  return res.json();
+}
