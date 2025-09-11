@@ -167,6 +167,7 @@ export const ProjectList = () => {
         sx={{
           maxHeight: "70vh",
           overflowY: "auto",
+          pt: 0.25,
         }}
       >
         <Stack spacing={2}>

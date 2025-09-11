@@ -69,6 +69,16 @@ router.get('/', async (req, res) => {
   res.json(projects);
 });
 
+// Get all projects (lite) for selectors and fast calculations
+router.get('/all-lite', async (_req, res) => {
+  const db = await openDb();
+  // Return only required columns to keep payload small
+  const rows = await db.all(
+    'SELECT id, name, annualPercent, startDate, investedAmount FROM projects ORDER BY createdAt DESC'
+  );
+  res.json(rows);
+});
+
 // Get aggregated summary for all projects
 router.get('/summary', async (req, res) => {
   const db = await openDb();
