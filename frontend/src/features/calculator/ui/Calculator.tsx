@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useProjectStore } from "../../../entities/project/model/store";
 import {
   calculateAllPeriods,
@@ -28,27 +28,51 @@ import {
 import { Dashboard } from "./Dashboard";
 import { UnifiedTable } from "./UnifiedTable";
 import { StyledCard } from "../../../shared/ui/StyledCard";
+import { getAllProjectsLite } from "../../../entities/project/api/projectApi";
+import type { ProjectLite } from "../../../entities/project/types";
+import dayjs from "dayjs";
 
 // Calculator for investment returns
 export const Calculator = () => {
-  const projects = useProjectStore((state) => state.projects);
+  const storeProjects = useProjectStore((state) => state.projects);
+  const [projects, setProjects] = useState<ProjectLite[]>(storeProjects);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [yearsToShow, setYearsToShow] = useState(10);
 
-  // Handle project selection with "Select All" logic
+  // Fetch lightweight projects for fast select/calculation
+  useEffect(() => {
+    getAllProjectsLite()
+      .then((data) => setProjects(data))
+      .catch(() => setProjects(storeProjects));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Handle project selection with "Select All" and "Select Active" logic
   const handleProjectSelection = (event: any) => {
     const value = event.target.value;
 
     // Check if "select-all" is being selected
     if (value.includes("select-all")) {
-      // If "select-all" is selected, select all actual projects
       const allProjectIds = projects.map((p) => p.id);
       setSelectedProjects(allProjectIds);
-    } else {
-      // Remove "select-all" if it was previously selected and now deselected
-      const filteredValue = value.filter((v: string) => v !== "select-all");
-      setSelectedProjects(filteredValue);
+      return;
     }
+
+    // Check if "select-active" is being selected
+    if (value.includes("select-active")) {
+      const now = dayjs();
+      const activeProjectIds = projects
+        .filter((p) => now.isAfter(dayjs(p.startDate)))
+        .map((p) => p.id);
+      setSelectedProjects(activeProjectIds);
+      return;
+    }
+
+    // Otherwise, keep the chosen values (excluding special options if any slipped in)
+    const filteredValue = value.filter(
+      (v: string) => v !== "select-all" && v !== "select-active"
+    );
+    setSelectedProjects(filteredValue);
   };
 
   // Get selected projects data (filter out the "select-all" option)
@@ -73,10 +97,12 @@ export const Calculator = () => {
   const growthData = generateGrowthChartData(selectedProjectsData, yearsToShow);
 
   const yearOptions = [
+    { value: 1, label: "1 Year" },
     { value: 5, label: "5 Years" },
     { value: 10, label: "10 Years" },
     { value: 15, label: "15 Years" },
     { value: 20, label: "20 Years" },
+    { value: 30, label: "30 Years" },
   ];
 
   const [tabValue, setTabValue] = useState(0);
@@ -221,6 +247,16 @@ export const Calculator = () => {
                 <BusinessIcon sx={{ fontSize: 16, color: "primary.main" }} />
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
                   Select All Projects
+                </Typography>
+              </Box>
+            </MenuItem>
+            <MenuItem value="select-active">
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, py: 0.5 }}
+              >
+                <BusinessIcon sx={{ fontSize: 16, color: "success.main" }} />
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  Select Active Projects
                 </Typography>
               </Box>
             </MenuItem>

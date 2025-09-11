@@ -71,28 +71,6 @@ export const Header: React.FC = () => {
               Investment Calculator
             </Typography>
           </Box>
-
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              opacity: 0.9,
-            }}
-          >
-            <BusinessIcon sx={{ fontSize: 20, color: "white" }} />
-            <Typography
-              variant="h6"
-              component="h2"
-              sx={{
-                fontWeight: 500,
-                color: "white",
-                textShadow: "0 1px 2px rgba(0,0,0,0.1)",
-              }}
-            >
-              Investment Projects
-            </Typography>
-          </Box>
         </Box>
 
         {/* Right side - Theme Toggle and User Info */}

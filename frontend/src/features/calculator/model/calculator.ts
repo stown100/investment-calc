@@ -1,4 +1,4 @@
-import { Project } from "../../../entities/project/types";
+import type { ProjectLite as Project } from "../../../entities/project/types";
 import {
   CalculationPeriod,
   CalculationResult,

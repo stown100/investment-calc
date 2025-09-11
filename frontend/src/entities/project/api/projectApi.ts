@@ -1,4 +1,5 @@
 import { Project } from "../model/types";
+import type { ProjectLite } from "../../project/types";
 
 const API_URL = "http://localhost:3001/api/projects";
 
@@ -88,5 +89,14 @@ export async function getProjectsSummary(): Promise<ProjectsSummary> {
     headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error("Failed to fetch projects summary");
+  return res.json();
+}
+
+// Lightweight list of all projects for fast select and calc
+export async function getAllProjectsLite(): Promise<ProjectLite[]> {
+  const res = await fetch(`${API_URL}/all-lite`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error("Failed to fetch lite projects");
   return res.json();
 }
