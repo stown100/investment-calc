@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { openDb } from './db';
+import { RateType } from './entities/project/model/types';
 
 const router = Router();
 
@@ -65,8 +66,12 @@ router.get('/', async (req, res) => {
   }
   
   const projects = await db.all(query, params);
-  
-  res.json(projects);
+  // Backward compatibility: if rateType column doesn't exist in some rows, default to 'fixed'
+  const normalized = projects.map((p: any) => ({
+    ...p,
+    rateType: p.rateType || 'fixed',
+  }));
+  res.json(normalized);
 });
 
 // Get all projects (lite) for selectors and fast calculations
@@ -74,9 +79,10 @@ router.get('/all-lite', async (_req, res) => {
   const db = await openDb();
   // Return only required columns to keep payload small
   const rows = await db.all(
-    'SELECT id, name, annualPercent, startDate, investedAmount FROM projects ORDER BY createdAt DESC'
+    'SELECT id, name, annualPercent, startDate, investedAmount, rateType FROM projects ORDER BY createdAt DESC'
   );
-  res.json(rows);
+  const normalized = rows.map((p: any) => ({ ...p, rateType: p.rateType || 'fixed' }));
+  res.json(normalized);
 });
 
 // Get aggregated summary for all projects
@@ -109,14 +115,18 @@ router.get('/summary', async (req, res) => {
 
 // Add project
 router.post('/', async (req, res) => {
-  const { id, name, annualPercent, startDate, createdAt, investedAmount } = req.body;
-  if (!id || !name || annualPercent == null || !startDate || !createdAt || investedAmount == null) {
+  const { id, name, annualPercent, startDate, createdAt, investedAmount, rateType } = req.body;
+  if (!id || !name || !startDate || !createdAt || investedAmount == null) {
     return res.status(400).json({ error: 'Missing required fields' });
+  }
+  const normalizedRateType: RateType = rateType === RateType.Floating ? RateType.Floating : RateType.Fixed;
+  if (normalizedRateType === RateType.Fixed && (annualPercent == null || isNaN(Number(annualPercent)))) {
+    return res.status(400).json({ error: 'annualPercent is required for fixed rate projects' });
   }
   const db = await openDb();
   await db.run(
-    'INSERT INTO projects (id, name, annualPercent, startDate, createdAt, investedAmount) VALUES (?, ?, ?, ?, ?, ?)',
-    [id, name, annualPercent, startDate, createdAt, investedAmount]
+    'INSERT INTO projects (id, name, annualPercent, startDate, createdAt, investedAmount, rateType) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [id, name, normalizedRateType === RateType.Fixed ? annualPercent : null, startDate, createdAt, investedAmount, normalizedRateType]
   );
   res.status(201).json({ message: 'Project added' });
 });
@@ -124,11 +134,12 @@ router.post('/', async (req, res) => {
 // Update project
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, annualPercent, startDate, createdAt, investedAmount } = req.body;
+  const { name, annualPercent, startDate, createdAt, investedAmount, rateType } = req.body;
   const db = await openDb();
+  const normalizedRateType: RateType = rateType === RateType.Floating ? RateType.Floating : RateType.Fixed;
   const result = await db.run(
-    'UPDATE projects SET name = ?, annualPercent = ?, startDate = ?, createdAt = ?, investedAmount = ? WHERE id = ?',
-    [name, annualPercent, startDate, createdAt, investedAmount, id]
+    'UPDATE projects SET name = ?, annualPercent = ?, startDate = ?, createdAt = ?, investedAmount = ?, rateType = ? WHERE id = ?',
+    [name, normalizedRateType === RateType.Fixed ? annualPercent : null, startDate, createdAt, investedAmount, normalizedRateType, id]
   );
   if (result.changes === 0) {
     return res.status(404).json({ error: 'Project not found' });

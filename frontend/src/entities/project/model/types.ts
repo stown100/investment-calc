@@ -1,10 +1,12 @@
+import { RateType } from "../types";
 export type Project = {
   id: string;
   name: string;
-  annualPercent: number;
+  annualPercent: number | null;
   startDate: string;
   createdAt: string;
   investedAmount: number;
+  rateType: RateType;
 };
 
 // Тип для форм, где числовые поля могут быть строками
@@ -15,6 +17,7 @@ export type ProjectFormData = {
   startDate: string;
   createdAt?: string;
   investedAmount: number | string;
+  rateType: RateType;
 };
 
 // Тип для создания нового проекта

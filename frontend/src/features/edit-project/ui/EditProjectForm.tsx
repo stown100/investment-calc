@@ -17,11 +17,12 @@ import {
   Business as BusinessIcon,
   Percent as PercentIcon,
   CalendarToday as CalendarIcon,
-  AttachMoney as MoneyIcon,
   Edit as EditIcon,
 } from "@mui/icons-material";
+import { FormControlLabel, Switch, InputAdornment } from "@mui/material";
 import dayjs from "dayjs";
 import { Project, ProjectFormData } from "../../../entities/project/model/types";
+import { RateType } from "../../../entities/project/types";
 import { useNotification } from "../../../shared/context/NotificationContext";
 
 interface EditProjectFormProps {
@@ -39,9 +40,10 @@ export const EditProjectForm = ({ project, onSuccess }: EditProjectFormProps) =>
   const [formValues, setFormValues] = useState<ProjectFormData>({
     id: project.id,
     name: project.name,
-    annualPercent: project.annualPercent.toString(),
+    annualPercent: project.annualPercent?.toString() || "",
     startDate: project.startDate,
     investedAmount: project.investedAmount.toString(),
+    rateType: project.rateType,
   });
 
   const [errors, setErrors] = useState<Partial<ProjectFormData>>({});
@@ -53,9 +55,11 @@ export const EditProjectForm = ({ project, onSuccess }: EditProjectFormProps) =>
       newErrors.name = "Name is required";
     }
     
-    const annualPercent = Number(formValues.annualPercent);
-    if (isNaN(annualPercent) || annualPercent <= 0) {
-      newErrors.annualPercent = "Percent must be a positive number";
+    if (formValues.rateType === RateType.Fixed) {
+      const annualPercent = Number(formValues.annualPercent);
+      if (isNaN(annualPercent) || annualPercent <= 0) {
+        newErrors.annualPercent = "Percent must be a positive number";
+      }
     }
     
     const investedAmount = Number(formValues.investedAmount);
@@ -88,9 +92,10 @@ export const EditProjectForm = ({ project, onSuccess }: EditProjectFormProps) =>
     const updatedProject: Project = {
       ...project,
       name: formValues.name,
-      annualPercent: Number(formValues.annualPercent),
+      annualPercent: formValues.rateType === RateType.Fixed ? Number(formValues.annualPercent) : null,
       startDate: formValues.startDate,
       investedAmount: Number(formValues.investedAmount),
+      rateType: formValues.rateType,
     };
     
     try {
@@ -147,30 +152,54 @@ export const EditProjectForm = ({ project, onSuccess }: EditProjectFormProps) =>
             helperText={errors.name}
             fullWidth
             size="small"
-            InputProps={{
-              startAdornment: (
-                <BusinessIcon sx={{ fontSize: 16, color: 'text.secondary', mr: 1 }} />
-              ),
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <BusinessIcon sx={{ fontSize: 16, color: 'text.secondary', mr: 1 }} />
+                  </InputAdornment>
+                ),
+              },
             }}
           />
 
-          <TextField
-            label="Annual Percent"
-            placeholder="Enter percent"
-            type="number"
-            value={formValues.annualPercent}
-            onChange={(e) => handleInputChange('annualPercent', e.target.value)}
-            error={!!errors.annualPercent}
-            helperText={errors.annualPercent}
-            fullWidth
-            size="small"
-            InputProps={{
-              startAdornment: (
-                <PercentIcon sx={{ fontSize: 16, color: 'text.secondary', mr: 1 }} />
-              ),
-              endAdornment: <Typography variant="caption">%</Typography>,
-            }}
+          <FormControlLabel
+            control={
+              <Switch
+                checked={formValues.rateType === RateType.Floating}
+                onChange={(e) => handleInputChange('rateType', e.target.checked ? RateType.Floating : RateType.Fixed)}
+              />
+            }
+            label={formValues.rateType === RateType.Floating ? 'Floating Rate' : 'Fixed Rate'}
           />
+
+          {formValues.rateType === RateType.Fixed && (
+            <TextField
+              label="Annual Percent"
+              placeholder="Enter percent"
+              type="number"
+              value={formValues.annualPercent}
+              onChange={(e) => handleInputChange('annualPercent', e.target.value)}
+              error={!!errors.annualPercent}
+              helperText={errors.annualPercent}
+              fullWidth
+              size="small"
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PercentIcon sx={{ fontSize: 16, color: 'text.secondary', mr: 1 }} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Typography variant="caption">%</Typography>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+          )}
 
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
@@ -183,10 +212,14 @@ export const EditProjectForm = ({ project, onSuccess }: EditProjectFormProps) =>
                   size: 'small',
                   error: !!errors.startDate,
                   helperText: errors.startDate,
-                  InputProps: {
-                    startAdornment: (
-                      <CalendarIcon sx={{ fontSize: 16, color: 'text.secondary', mr: 1 }} />
-                    ),
+                  slotProps: {
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <CalendarIcon sx={{ fontSize: 16, color: 'text.secondary', mr: 1 }} />
+                        </InputAdornment>
+                      ),
+                    },
                   },
                 },
               }}
@@ -203,8 +236,14 @@ export const EditProjectForm = ({ project, onSuccess }: EditProjectFormProps) =>
             helperText={errors.investedAmount}
             fullWidth
             size="small"
-            InputProps={{
-              startAdornment: <Typography variant="caption" sx={{ mr: 1 }}>$</Typography>,
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Typography variant="caption" sx={{ mr: 1 }}>$</Typography>
+                  </InputAdornment>
+                ),
+              },
             }}
           />
 
