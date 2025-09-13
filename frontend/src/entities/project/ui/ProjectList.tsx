@@ -20,6 +20,7 @@ import {
 } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { Project } from "../model/types";
+import { RateType } from "../types";
 import { EditProjectModal } from "../../../features/edit-project/ui/EditProjectModal";
 import { useNotification } from "../../../shared/context/NotificationContext";
 import { StyledCard } from "../../../shared/ui/StyledCard";
@@ -226,13 +227,23 @@ export const ProjectList = () => {
                           size="small"
                           variant="outlined"
                         />
-                        <Chip
-                          label={`${project.annualPercent}% per year`}
-                          icon={<PercentIcon />}
-                          size="small"
-                          variant="outlined"
-                          color="primary"
-                        />
+                        {project.rateType === RateType.Fixed ? (
+                          <Chip
+                            label={`${project.annualPercent}% per year`}
+                            icon={<PercentIcon />}
+                            size="small"
+                            variant="outlined"
+                            color="primary"
+                          />
+                        ) : (
+                          <Chip
+                            label={`Floating rate`}
+                            icon={<PercentIcon />}
+                            size="small"
+                            variant="outlined"
+                            color="primary"
+                          />
+                        )}
                       </Box>
                     </Box>
 

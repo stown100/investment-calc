@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useProjectStore } from "../../../entities/project/model/store";
 import {
   calculateAllPeriods,
@@ -28,8 +28,15 @@ import {
 import { Dashboard } from "./Dashboard";
 import { UnifiedTable } from "./UnifiedTable";
 import { StyledCard } from "../../../shared/ui/StyledCard";
+import { BlurLoader } from "../../../shared/ui/BlurLoader";
 import { getAllProjectsLite } from "../../../entities/project/api/projectApi";
 import type { ProjectLite } from "../../../entities/project/types";
+import { RateType } from "../../../entities/project/types";
+import { detectSymbolFromName } from "../../../shared/constants/markets";
+import {
+  loadCryptoHistory,
+  getCryptoForecast,
+} from "../../../entities/project/api/marketApi";
 import dayjs from "dayjs";
 
 // Calculator for investment returns
@@ -38,6 +45,29 @@ export const Calculator = () => {
   const [projects, setProjects] = useState<ProjectLite[]>(storeProjects);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [yearsToShow, setYearsToShow] = useState(10);
+  const [forecastMethod, setForecastMethod] = useState<"historical" | "gbm">(
+    "historical"
+  );
+  const [forecastBySymbol, setForecastBySymbol] = useState<
+    Record<
+      string,
+      {
+        expectedTotalPercent: number;
+        expectedAnnualPercent: number;
+        p10: number | null;
+        p50: number | null;
+        p90: number | null;
+        method: string;
+        samples: number;
+        warning?: string;
+      }
+    >
+  >({});
+  const [forecastLoading, setForecastLoading] = useState(false);
+  const [forecastError, setForecastError] = useState<string | null>(null);
+
+  const deriveSymbolFromName = (name?: string | null): string | null =>
+    detectSymbolFromName(name);
 
   // Fetch lightweight projects for fast select/calculation
   useEffect(() => {
@@ -80,21 +110,108 @@ export const Calculator = () => {
     selectedProjects.includes(p.id)
   );
 
-  // Calculate all data
-  const results = calculateAllPeriods(selectedProjectsData);
-  const yearlyData = calculateYearlyBreakdown(
-    selectedProjectsData,
-    yearsToShow
+  const floatingSymbols = useMemo(() => {
+    const selectedIds = new Set(selectedProjects);
+    const symbols = projects
+      .filter((p) => selectedIds.has(p.id) && p.rateType === RateType.Floating)
+      .map(
+        (p) => (p.marketSymbol as string) || deriveSymbolFromName(p.name) || ""
+      )
+      .filter((s) => !!s)
+      .map((s) => s.toUpperCase());
+    return Array.from(new Set(symbols)).sort();
+  }, [projects, selectedProjects]);
+
+  const floatingSymbolsKey = useMemo(
+    () => floatingSymbols.join("|"),
+    [floatingSymbols]
   );
+
+  // Prefetch history and fetch forecasts for floating projects
+  useEffect(() => {
+    let cancelled = false;
+    async function run() {
+      if (floatingSymbols.length === 0) {
+        setForecastBySymbol({});
+        setForecastError(null);
+        return;
+      }
+      setForecastLoading(true);
+      setForecastError(null);
+      try {
+        // ensure history cached and fetch forecast per symbol
+        await Promise.all(
+          floatingSymbols.map((s) =>
+            loadCryptoHistory(s, false).catch(() => null)
+          )
+        );
+        const results = await Promise.all(
+          floatingSymbols.map(async (s) => {
+            try {
+              const r = await getCryptoForecast(
+                s,
+                yearsToShow,
+                forecastMethod,
+                10000
+              );
+              return [s, r] as const;
+            } catch (e) {
+              return [s, null] as const;
+            }
+          })
+        );
+        if (cancelled) return;
+        const map: Record<string, any> = {};
+        for (const [s, r] of results) {
+          if (r) map[s] = r;
+        }
+        setForecastBySymbol(map);
+      } catch (e: any) {
+        if (!cancelled) setForecastError("Failed to load forecasts");
+      } finally {
+        if (!cancelled) setForecastLoading(false);
+      }
+    }
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [floatingSymbolsKey, yearsToShow, forecastMethod]);
+
+  // Build effective projects set: for floating projects with forecast, use forecasted annual %
+  const effectiveProjects = useMemo(() => {
+    if (!selectedProjectsData || selectedProjectsData.length === 0)
+      return [] as ProjectLite[];
+    return selectedProjectsData.map((p) => {
+      if (p.rateType === RateType.Floating) {
+        const symbol =
+          (p.marketSymbol as string) || deriveSymbolFromName(p.name) || "";
+        if (symbol) {
+          const f = forecastBySymbol[symbol.toUpperCase()];
+          if (f && Number.isFinite(f.expectedAnnualPercent)) {
+            return {
+              ...p,
+              annualPercent: f.expectedAnnualPercent,
+            } as ProjectLite;
+          }
+        }
+      }
+      return p;
+    });
+  }, [selectedProjectsData, forecastBySymbol]);
+
+  // Calculate all data using effective projects
+  const results = calculateAllPeriods(effectiveProjects);
+  const yearlyData = calculateYearlyBreakdown(effectiveProjects, yearsToShow);
   const dashboardSummary = generateDashboardSummary(
-    selectedProjectsData,
+    effectiveProjects,
     yearsToShow
   );
   const portfolioData = generatePortfolioChartData(
-    selectedProjectsData,
+    effectiveProjects,
     yearsToShow
   );
-  const growthData = generateGrowthChartData(selectedProjectsData, yearsToShow);
+  const growthData = generateGrowthChartData(effectiveProjects, yearsToShow);
 
   const yearOptions = [
     { value: 1, label: "1 Year" },
@@ -148,6 +265,20 @@ export const Calculator = () => {
                   {option.label}
                 </MenuItem>
               ))}
+            </Select>
+          </FormControl>
+          <FormControl size="small" sx={{ width: 160 }}>
+            <InputLabel>Forecast Method</InputLabel>
+            <Select
+              value={forecastMethod}
+              onChange={(e) =>
+                setForecastMethod(e.target.value as "historical" | "gbm")
+              }
+              label="Forecast Method"
+              sx={{ borderRadius: 2 }}
+            >
+              <MenuItem value="historical">Historical</MenuItem>
+              <MenuItem value="gbm">GBM (Monte Carlo)</MenuItem>
             </Select>
           </FormControl>
         </Box>
@@ -271,7 +402,16 @@ export const Calculator = () => {
         </FormControl>
 
         {selectedProjects.length > 0 && (
-          <Box sx={{ borderTop: 1, borderColor: "divider", pt: 1 }}>
+          <Box
+            sx={{
+              borderTop: 1,
+              borderColor: "divider",
+              pt: 1,
+              position: "relative",
+              minHeight: 120,
+            }}
+          >
+            {forecastLoading && <BlurLoader />}
             <Tabs
               value={tabValue}
               onChange={handleTabChange}

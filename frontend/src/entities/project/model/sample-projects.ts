@@ -1,4 +1,5 @@
 import { Project } from "./types";
+import { RateType } from "../types";
 
 // Example projects for initial state
 export const sampleProjects: Project[] = [
@@ -9,6 +10,7 @@ export const sampleProjects: Project[] = [
     startDate: "2024-06-01T00:00:00.000Z",
     createdAt: "2024-04-08T00:00:00.000Z",
     investedAmount: 973.0,
+    rateType: RateType.Fixed,
   },
   {
     id: "2",
@@ -17,5 +19,6 @@ export const sampleProjects: Project[] = [
     startDate: "2024-06-01T00:00:00.000Z",
     createdAt: "2024-05-04T00:00:00.000Z",
     investedAmount: 250.0,
+    rateType: RateType.Fixed,
   },
 ];

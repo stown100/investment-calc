@@ -13,7 +13,8 @@ export function calculateProjectReturn(
   project: Project,
   days: number
 ): { percentage: number; amount: number } {
-  const dailyRate = project.annualPercent / 365 / 100;
+  const percent = project.annualPercent ?? 0;
+  const dailyRate = percent / 365 / 100;
   const percentage = dailyRate * days * 100;
   const amount = project.investedAmount * (dailyRate * days);
   return { percentage, amount };
@@ -53,7 +54,7 @@ export function calculateYearlyBreakdown(
   let currentAmount = projects.reduce((sum, p) => sum + p.investedAmount, 0);
   const averageAnnualPercent =
     projects.length > 0
-      ? projects.reduce((sum, p) => sum + p.annualPercent, 0) / projects.length
+      ? projects.reduce((sum, p) => sum + (p.annualPercent ?? 0), 0) / projects.length
       : 0;
 
   for (let year = 1; year <= years; year++) {
@@ -90,7 +91,7 @@ export function generateDashboardSummary(
   const totalInvested = projects.reduce((sum, p) => sum + p.investedAmount, 0);
   const averageAnnualPercent =
     projects.length > 0
-      ? projects.reduce((sum, p) => sum + p.annualPercent, 0) / projects.length
+      ? projects.reduce((sum, p) => sum + (p.annualPercent ?? 0), 0) / projects.length
       : 0;
 
   // Calculate projected value after selected years
@@ -117,8 +118,9 @@ export function generatePortfolioChartData(
   const totalInvested = projects.reduce((sum, p) => sum + p.investedAmount, 0);
 
   return projects.map((project) => {
+    const percent = project.annualPercent ?? 0;
     const projectedValue =
-      project.investedAmount * Math.pow(1 + project.annualPercent / 100, years);
+      project.investedAmount * Math.pow(1 + percent / 100, years);
     const percentage = (project.investedAmount / totalInvested) * 100;
 
     return {

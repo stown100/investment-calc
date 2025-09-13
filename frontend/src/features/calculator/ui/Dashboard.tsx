@@ -87,7 +87,15 @@ export const Dashboard = ({
                   mb: 0.5,
                 }}
               >
-                <PercentIcon sx={{ fontSize: 12, color: "success.main" }} />
+                <PercentIcon
+                  sx={{
+                    fontSize: 12,
+                    color:
+                      summary.averageAnnualPercent >= 0
+                        ? "success.main"
+                        : "error.main",
+                  }}
+                />
                 <Typography variant="caption" color="text.secondary">
                   Annual Return
                 </Typography>
@@ -96,7 +104,10 @@ export const Dashboard = ({
                 variant="body2"
                 sx={{
                   fontWeight: 700,
-                  color: "success.main",
+                  color:
+                    summary.averageAnnualPercent >= 0
+                      ? "success.main"
+                      : "error.main",
                   whiteSpace: "nowrap",
                 }}
               >
