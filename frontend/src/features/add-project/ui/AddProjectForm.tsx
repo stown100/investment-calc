@@ -46,6 +46,7 @@ export const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
     startDate: new Date().toISOString().split("T")[0],
     investedAmount: "",
     rateType: RateType.Fixed,
+    marketSymbol: "",
   });
 
   const [errors, setErrors] = useState<Partial<ProjectFormData>>({});
@@ -87,6 +88,7 @@ export const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
       startDate: new Date().toISOString().split("T")[0],
       investedAmount: "",
       rateType: RateType.Fixed,
+      marketSymbol: "",
     });
     setErrors({});
   };
@@ -113,6 +115,7 @@ export const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
       createdAt: new Date().toISOString(),
       investedAmount: Number(formValues.investedAmount),
       rateType: formValues.rateType,
+      marketSymbol: formValues.marketSymbol || null,
     };
 
     try {
@@ -240,6 +243,20 @@ export const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
             />
           )}
 
+          {formValues.rateType === RateType.Floating && (
+            <TextField
+              label="Market Symbol"
+              placeholder="e.g., BTC, TON, SPY"
+              value={formValues.marketSymbol || ""}
+              onChange={(e) =>
+                handleInputChange("marketSymbol", e.target.value.toUpperCase())
+              }
+              fullWidth
+              size="small"
+              helperText="Ticker symbol used for fetching market data"
+            />
+          )}
+
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               label="Profit Start Date"
@@ -259,7 +276,11 @@ export const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
                       startAdornment: (
                         <InputAdornment position="start">
                           <CalendarIcon
-                            sx={{ fontSize: 16, color: "text.secondary", mr: 1 }}
+                            sx={{
+                              fontSize: 16,
+                              color: "text.secondary",
+                              mr: 1,
+                            }}
                           />
                         </InputAdornment>
                       ),

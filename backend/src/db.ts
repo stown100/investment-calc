@@ -28,8 +28,19 @@ export async function initDb() {
       startDate TEXT NOT NULL,
       createdAt TEXT NOT NULL,
       investedAmount REAL NOT NULL,
-      rateType TEXT NOT NULL DEFAULT 'fixed'
+      rateType TEXT NOT NULL DEFAULT 'fixed',
+      marketSymbol TEXT
     );
+
+    -- Daily close prices cache for market assets (e.g., crypto)
+    CREATE TABLE IF NOT EXISTS daily_prices (
+      symbol TEXT NOT NULL,
+      date TEXT NOT NULL,
+      close REAL NOT NULL,
+      source TEXT NOT NULL,
+      PRIMARY KEY(symbol, date)
+    );
+    CREATE INDEX IF NOT EXISTS idx_daily_prices_symbol_date ON daily_prices(symbol, date);
   `);
   // Perform lightweight migrations if the schema existed before
   await migrateProjectsTable(db);
@@ -45,6 +56,10 @@ async function migrateProjectsTable(dbInstance: any) {
     await dbInstance.exec(
       `ALTER TABLE projects ADD COLUMN rateType TEXT NOT NULL DEFAULT 'fixed'`
     );
+  }
+  const hasMarketSymbol = columns.some((c) => c.name === "marketSymbol");
+  if (!hasMarketSymbol) {
+    await dbInstance.exec(`ALTER TABLE projects ADD COLUMN marketSymbol TEXT`);
   }
 
   // If annualPercent is NOT NULL in existing schema, recreate table to drop NOT NULL
@@ -62,12 +77,13 @@ async function migrateProjectsTable(dbInstance: any) {
           startDate TEXT NOT NULL,
           createdAt TEXT NOT NULL,
           investedAmount REAL NOT NULL,
-          rateType TEXT NOT NULL DEFAULT 'fixed'
+          rateType TEXT NOT NULL DEFAULT 'fixed',
+          marketSymbol TEXT
         );
       `);
       await dbInstance.exec(`
-        INSERT INTO projects_new (id, name, annualPercent, startDate, createdAt, investedAmount, rateType)
-        SELECT id, name, annualPercent, startDate, createdAt, investedAmount, COALESCE(rateType, 'fixed') FROM projects;
+        INSERT INTO projects_new (id, name, annualPercent, startDate, createdAt, investedAmount, rateType, marketSymbol)
+        SELECT id, name, annualPercent, startDate, createdAt, investedAmount, COALESCE(rateType, 'fixed'), marketSymbol FROM projects;
       `);
       await dbInstance.exec(`DROP TABLE projects;`);
       await dbInstance.exec(`ALTER TABLE projects_new RENAME TO projects;`);

@@ -1,6 +1,6 @@
 export enum RateType {
-  Fixed = 'fixed',
-  Floating = 'floating',
+  Fixed = "fixed",
+  Floating = "floating",
 }
 // Investment project type
 export interface Project {
@@ -11,6 +11,7 @@ export interface Project {
   createdAt: string; // ISO string
   investedAmount: number;
   rateType: RateType;
+  marketSymbol?: string | null;
 }
 
 // Lightweight project type for fast selects/calculations
@@ -21,4 +22,5 @@ export interface ProjectLite {
   startDate: string; // ISO string
   investedAmount: number;
   rateType: RateType;
+  marketSymbol?: string | null;
 }

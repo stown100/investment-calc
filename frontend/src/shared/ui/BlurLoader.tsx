@@ -15,7 +15,14 @@ export const BlurLoader = () => {
         position: "absolute",
         top: 0,
         left: 0,
-        zIndex: 2,
+        right: 0,
+        bottom: 0,
+        // Place below MUI Menu/Modal layer so Select dropdown stays on top
+        zIndex: (theme) => {
+          const modal = (theme as any).zIndex?.modal ?? 1300;
+          return modal - 1; // e.g., 1299
+        },
+        pointerEvents: "none",
       }}
     >
       <CircularProgress />

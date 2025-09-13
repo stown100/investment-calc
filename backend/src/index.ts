@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import { initDb } from "./db";
 import projectsRouter from "./projects";
+import marketRouter from "./market";
+import forecastRouter from "./forecast";
 import authRouter from "./entities/user/api/authRouter";
 import { authMiddleware } from "./middleware/auth";
 
@@ -16,6 +18,8 @@ app.use("/api/auth", authRouter);
 
 // Protected routes
 app.use("/api/projects", authMiddleware, projectsRouter);
+app.use("/api/market", authMiddleware, marketRouter);
+app.use("/api/forecast", authMiddleware, forecastRouter);
 
 app.get("/", (req, res) => {
   res.send("API is running");

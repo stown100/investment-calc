@@ -175,7 +175,13 @@ export const UnifiedTable = ({
                       <TableCell>
                         <Typography
                           variant="body2"
-                          sx={{ fontWeight: 600, color: "success.main" }}
+                          sx={{
+                            fontWeight: 600,
+                            color:
+                              (result.returnAmount || 0) >= 0
+                                ? "success.main"
+                                : "error.main",
+                          }}
                         >
                           $
                           {(result.returnAmount || 0).toLocaleString("en-US", {
