@@ -42,6 +42,7 @@ import dayjs from "dayjs";
 // Calculator for investment returns
 export const Calculator = () => {
   const storeProjects = useProjectStore((state) => state.projects);
+  const lastChangedAt = useProjectStore((state) => state.lastChangedAt);
   const [projects, setProjects] = useState<ProjectLite[]>(storeProjects);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [yearsToShow, setYearsToShow] = useState(10);
@@ -71,11 +72,26 @@ export const Calculator = () => {
 
   // Fetch lightweight projects for fast select/calculation
   useEffect(() => {
+    let cancelled = false;
     getAllProjectsLite()
-      .then((data) => setProjects(data))
-      .catch(() => setProjects(storeProjects));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      .then((data) => {
+        if (cancelled) return;
+        setProjects(data);
+        // keep only existing IDs after list updates
+        if (selectedProjects.length > 0) {
+          const validIds = new Set(data.map((p) => p.id));
+          setSelectedProjects((prev) => prev.filter((id) => validIds.has(id)));
+        }
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setProjects(storeProjects as any);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // re-fetch when projects list changes in store
+  }, [lastChangedAt]);
 
   // Handle project selection with "Select All" and "Select Active" logic
   const handleProjectSelection = (event: any) => {

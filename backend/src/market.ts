@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { openDb } from "./db";
+import { openDb, dailyPricesCollection } from "./db";
 import https from "https";
 
 const router = Router();
@@ -116,7 +116,9 @@ async function fetchStooqDaily(
 async function fetchCryptoCompareDaily(
   symbol: string
 ): Promise<Array<{ date: string; close: number }>> {
-  const url = `https://min-api.cryptocompare.com/data/v2/histoday?fsym=${encodeURIComponent(symbol.toUpperCase())}&tsym=USD&limit=2000`;
+  const url = `https://min-api.cryptocompare.com/data/v2/histoday?fsym=${encodeURIComponent(
+    symbol.toUpperCase()
+  )}&tsym=USD&limit=2000`;
   const data = await httpGetJson(url);
   if (!data || !data.Data || !data.Data.Data)
     throw new Error("Invalid CryptoCompare data");
@@ -130,14 +132,15 @@ async function fetchCryptoCompareDaily(
 export async function ensureHistoryForSymbol(
   symbol: string
 ): Promise<{ source: string; rows: Array<{ date: string; close: number }> }> {
-  const db = await openDb();
+  await openDb();
+  const col = dailyPricesCollection();
   // Check cache first
-  const cached = await db.all(
-    "SELECT date, close FROM daily_prices WHERE symbol = ? ORDER BY date ASC",
-    [symbol]
-  );
+  const cached = await col
+    .find({ symbol }, { projection: { _id: 0, date: 1, close: 1 } })
+    .sort({ date: 1 })
+    .toArray();
   if (cached.length > 0) {
-    return { source: "cache", rows: cached };
+    return { source: "cache", rows: cached as any };
   }
 
   let history: Array<{ date: string; close: number }> | null = null;
@@ -171,40 +174,39 @@ export async function ensureHistoryForSymbol(
     throw new Error("Unsupported symbol");
   }
 
-  const db2 = await openDb();
-  await db2.exec("BEGIN");
-  try {
-    for (const row of history) {
-      await db2.run(
-        "INSERT OR REPLACE INTO daily_prices (symbol, date, close, source) VALUES (?, ?, ?, ?)",
-        [symbol, row.date, row.close, source]
-      );
-    }
-    await db2.exec("COMMIT");
-  } catch (e) {
-    await db2.exec("ROLLBACK");
-    throw e;
+  await openDb();
+  const col2 = dailyPricesCollection();
+  const bulk = col2.initializeUnorderedBulkOp();
+  for (const row of history) {
+    bulk
+      .find({ symbol, date: row.date })
+      .upsert()
+      .updateOne({
+        $set: { symbol, date: row.date, close: row.close, source },
+      });
   }
-  const rows = await db2.all(
-    "SELECT date, close FROM daily_prices WHERE symbol = ? ORDER BY date ASC",
-    [symbol]
-  );
-  return { source, rows };
+  await bulk.execute();
+  const rows = await col2
+    .find({ symbol }, { projection: { _id: 0, date: 1, close: 1 } })
+    .sort({ date: 1 })
+    .toArray();
+  return { source, rows: rows as any };
 }
 
 // GET /api/market/crypto/:symbol/history?forceRefresh=false
 router.get("/crypto/:symbol/history", async (req, res) => {
   const symbol = (req.params.symbol || "").toUpperCase();
   const forceRefresh = String(req.query.forceRefresh || "false") === "true";
-  const db = await openDb();
+  await openDb();
+  const col = dailyPricesCollection();
 
   try {
     // if cache exists and not forcing refresh, return from cache
     if (!forceRefresh) {
-      const rows = await db.all(
-        "SELECT date, close FROM daily_prices WHERE symbol = ? ORDER BY date ASC",
-        [symbol]
-      );
+      const rows = await col
+        .find({ symbol }, { projection: { _id: 0, date: 1, close: 1 } })
+        .sort({ date: 1 })
+        .toArray();
       if (rows.length > 0) {
         return res.json({ symbol, source: "cache", rows });
       }

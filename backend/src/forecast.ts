@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { openDb } from "./db";
+import { openDb, dailyPricesCollection } from "./db";
 import { ensureHistoryForSymbol } from "./market";
 
 const router = Router();
@@ -187,12 +187,13 @@ router.get("/crypto/:symbol", async (req, res) => {
       parseInt(String(req.query.simulations || "10000")) || 10000
     )
   );
-  const db = await openDb();
+  await openDb();
+  const col = dailyPricesCollection();
   try {
-    const rows = await db.all(
-      "SELECT date, close FROM daily_prices WHERE symbol = ? ORDER BY date ASC",
-      [symbol]
-    );
+    const rows = await col
+      .find({ symbol }, { projection: { _id: 0, date: 1, close: 1 } })
+      .sort({ date: 1 })
+      .toArray();
     if (!rows || rows.length < 2) {
       try {
         const r = await ensureHistoryForSymbol(symbol);
@@ -210,17 +211,15 @@ router.get("/crypto/:symbol", async (req, res) => {
           });
         }
       } catch (_) {}
-      return res
-        .status(400)
-        .json({
-          error:
-            "No cached data for symbol. Load history first via /api/market/crypto/:symbol/history",
-        });
+      return res.status(400).json({
+        error:
+          "No cached data for symbol. Load history first via /api/market/crypto/:symbol/history",
+      });
     }
     const result =
       method === "gbm"
-        ? computeGbmForecast(rows, years, simulations)
-        : computeHistoricalForecast(rows, years);
+        ? computeGbmForecast(rows as any, years, simulations)
+        : computeHistoricalForecast(rows as any, years);
     res.json({
       symbol,
       years,

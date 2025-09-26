@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { Project } from "./types";
 import * as projectApi from "../api/projectApi";
+import { useProjectsSummaryStore } from "./summaryStore";
 
 interface ProjectState {
   projects: Project[];
@@ -12,6 +13,7 @@ interface ProjectState {
   hasMore: boolean;
   isLoading: boolean;
   isInitialLoading: boolean;
+  lastChangedAt: number;
   fetchProjects: (
     sortBy?: string,
     sortOrder?: string,
@@ -38,6 +40,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   hasMore: true,
   isLoading: false,
   isInitialLoading: true,
+  lastChangedAt: 0,
   fetchProjects: async (
     sortBy?: string,
     sortOrder?: string,
@@ -50,17 +53,18 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       if (resetPagination) {
         set({ isInitialLoading: true });
       }
-      
+
       const currentSortBy = sortBy || get().sortBy;
       const currentSortOrder = sortOrder || get().sortOrder;
       const currentStatus = status || get().status;
       const currentSearch = search !== undefined ? search : get().searchQuery;
 
       // Reset pagination if needed
-      const shouldReset = resetPagination || 
-        currentSortBy !== get().sortBy || 
-        currentSortOrder !== get().sortOrder || 
-        currentStatus !== get().status || 
+      const shouldReset =
+        resetPagination ||
+        currentSortBy !== get().sortBy ||
+        currentSortOrder !== get().sortOrder ||
+        currentStatus !== get().status ||
         currentSearch !== get().searchQuery;
 
       if (shouldReset) {
@@ -68,7 +72,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       }
 
       const offset = shouldReset ? 0 : (get().currentPage - 1) * 10;
-      
+
       const projects = await projectApi.getAllProjects({
         sortBy: currentSortBy,
         sortOrder: currentSortOrder,
@@ -79,17 +83,17 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       });
 
       if (shouldReset) {
-        set({ 
+        set({
           projects,
           hasMore: projects.length === 10,
           currentPage: 1,
-          isInitialLoading: false
+          isInitialLoading: false,
         });
       } else {
         set((state) => ({
           projects: [...state.projects, ...projects],
           hasMore: projects.length === 10,
-          currentPage: state.currentPage + 1
+          currentPage: state.currentPage + 1,
         }));
       }
     } catch (error) {
@@ -101,13 +105,13 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     if (!get().hasMore || get().isLoading) {
       return;
     }
-    
+
     set({ isLoading: true });
-    
+
     try {
       const currentState = get();
       const nextOffset = currentState.currentPage * 10;
-      
+
       const projects = await projectApi.getAllProjects({
         sortBy: currentState.sortBy,
         sortOrder: currentState.sortOrder,
@@ -116,13 +120,13 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         limit: 10,
         offset: nextOffset,
       });
-      
+
       if (projects.length > 0) {
         set((state) => ({
           projects: [...state.projects, ...projects],
           hasMore: projects.length === 10,
           currentPage: state.currentPage + 1,
-          isLoading: false
+          isLoading: false,
         }));
       } else {
         set({ hasMore: false, isLoading: false });
@@ -140,6 +144,9 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       get().status,
       get().searchQuery
     );
+    // Refresh summary after mutation
+    useProjectsSummaryStore.getState().fetchSummary();
+    set({ lastChangedAt: Date.now() });
   },
   removeProject: async (id) => {
     await projectApi.removeProject(id);
@@ -149,6 +156,9 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       get().status,
       get().searchQuery
     );
+    // Refresh summary after mutation
+    useProjectsSummaryStore.getState().fetchSummary();
+    set({ lastChangedAt: Date.now() });
   },
   updateProject: async (project) => {
     await projectApi.updateProject(project);
@@ -158,6 +168,9 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       get().status,
       get().searchQuery
     );
+    // Refresh summary after mutation
+    useProjectsSummaryStore.getState().fetchSummary();
+    set({ lastChangedAt: Date.now() });
   },
   setSorting: (sortBy: string, sortOrder: string) => {
     set({ sortBy, sortOrder });
