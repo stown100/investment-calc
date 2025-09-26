@@ -15,7 +15,7 @@ export const StyledCard = styled(Card)(({ theme, style }) => ({
       : "0 1px 3px rgba(0, 0, 0, 0.3)",
   transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
   "&:hover": {
-    transform: "translateY(-2px)",
+    transform: "scale(1.01)",
     boxShadow:
       theme.palette.mode === "light"
         ? "0 4px 12px rgba(0, 0, 0, 0.15)"
@@ -43,7 +43,7 @@ export const SuccessCard = styled(Card)(({ theme }) => ({
       ? "1px solid rgba(34, 197, 94, 0.2)"
       : "1px solid rgba(34, 197, 94, 0.3)",
   "&:hover": {
-    transform: "translateY(-2px)",
+    transform: "scale(1.01)",
     boxShadow:
       theme.palette.mode === "light"
         ? "0 8px 25px rgba(34, 197, 94, 0.15)"
@@ -76,7 +76,7 @@ export const PlatformCard = styled(Card, {
   borderRadius: 8,
   transition: "all 0.3s ease",
   "&:hover": {
-    transform: "translateY(-1px)",
+    transform: "scale(1.01)",
     boxShadow:
       theme.palette.mode === "light"
         ? `0 4px 12px ${$color}30`

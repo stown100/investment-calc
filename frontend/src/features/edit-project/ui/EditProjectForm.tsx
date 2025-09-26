@@ -123,7 +123,7 @@ export const EditProjectForm = ({
   };
 
   return (
-    <Paper elevation={2} sx={{ p: 2, borderRadius: 2, position: "relative" }}>
+    <>
       {loading && (
         <Box
           sx={{
@@ -318,6 +318,6 @@ export const EditProjectForm = ({
           </Box>
         </Stack>
       </form>
-    </Paper>
+    </>
   );
 };

@@ -1,5 +1,4 @@
-const API_MARKET = "http://localhost:3001/api/market";
-const API_FORECAST = "http://localhost:3001/api/forecast";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem("authToken");
@@ -11,7 +10,7 @@ const getAuthHeaders = () => {
 
 export async function loadCryptoHistory(symbol: string, forceRefresh = false) {
   const res = await fetch(
-    `${API_MARKET}/crypto/${encodeURIComponent(symbol)}/history?forceRefresh=${forceRefresh}`,
+    `${API_URL}/api/market/crypto/${encodeURIComponent(symbol)}/history?forceRefresh=${forceRefresh}`,
     { headers: getAuthHeaders() }
   );
   if (!res.ok) throw new Error("Failed to load market history");
@@ -29,7 +28,7 @@ export async function getCryptoForecast(
   simulations = 10000
 ) {
   const res = await fetch(
-    `${API_FORECAST}/crypto/${encodeURIComponent(symbol)}?years=${years}&method=${method}&simulations=${simulations}`,
+    `${API_URL}/api/forecast/crypto/${encodeURIComponent(symbol)}?years=${years}&method=${method}&simulations=${simulations}`,
     { headers: getAuthHeaders() }
   );
   if (!res.ok) throw new Error("Failed to load forecast");
