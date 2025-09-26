@@ -14,40 +14,7 @@
   -webkit-text-size-adjust: 100%;
 }
 
-/* Global styles to remove borders on active/focus states */
-*:focus {
-  outline: none !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-*:active {
-  outline: none !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-/* Remove focus borders from Material-UI components */
-.MuiTabs-root .MuiTab-root:focus,
-.MuiTabs-root .MuiTab-root:active,
-.MuiButton-root:focus,
-.MuiButton-root:active,
-.MuiTextField-root .MuiOutlinedInput-root:focus,
-.MuiTextField-root .MuiOutlinedInput-root:active {
-  outline: none !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-/* Remove focus borders from form elements */
-input:focus,
-button:focus,
-textarea:focus,
-select:focus {
-  outline: none !important;
-  border: none !important;
-  box-shadow: none !important;
-}
+/* Keep component borders on focus/active; avoid global border removal */
 
 a {
   font-weight: 500;

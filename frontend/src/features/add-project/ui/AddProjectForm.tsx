@@ -133,7 +133,7 @@ export const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
   };
 
   return (
-    <Paper elevation={2} sx={{ p: 2, borderRadius: 2, position: "relative" }}>
+    <>
       {loading && (
         <Box
           sx={{
@@ -334,6 +334,6 @@ export const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
           </Box>
         </Stack>
       </form>
-    </Paper>
+    </>
   );
 };

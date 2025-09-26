@@ -1,10 +1,10 @@
 import React from "react";
-import { 
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
-  Box, 
-  Typography 
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Box,
+  Typography,
 } from "@mui/material";
 import { Business as BusinessIcon } from "@mui/icons-material";
 import { AddProjectForm } from "./AddProjectForm";
@@ -22,15 +22,28 @@ export const AddProjectModal = ({ opened, onClose }: AddProjectModalProps) => {
       onClose={onClose}
       maxWidth="sm"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 2,
-        }
+      slotProps={{
+        paper: {
+          elevation: 0,
+          square: true,
+          sx: (theme) => ({
+            borderRadius: 2,
+            border: `1px solid ${theme.palette.divider}`,
+            background:
+              theme.palette.mode === "light"
+                ? "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)"
+                : "linear-gradient(135deg, rgb(30, 41, 59) 0%, rgb(15, 23, 42) 100%)",
+            boxShadow:
+              theme.palette.mode === "light"
+                ? "0 4px 12px rgba(0, 0, 0, 0.15)"
+                : "0 4px 12px rgba(0, 0, 0, 0.4)",
+          }),
+        },
       }}
     >
       <DialogTitle>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <BusinessIcon sx={{ fontSize: 24, color: 'primary.main' }} />
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <BusinessIcon sx={{ fontSize: 24, color: "primary.main" }} />
           <Typography variant="h5" component="h2" sx={{ fontWeight: 500 }}>
             Add New Project
           </Typography>

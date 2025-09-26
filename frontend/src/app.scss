@@ -1,5 +1,5 @@
 body {
-  font-family: 'Inter', 'Arial', sans-serif;
+  font-family: "Inter", "Arial", sans-serif;
   background: #f7f7f7;
   margin: 0;
   padding: 0;
@@ -12,96 +12,28 @@ body {
   flex-direction: column;
 }
 
-/* Custom styles for Material-UI components */
+/* Reset previous global overrides that stripped borders on focus/active */
 
 /* Remove focus borders from Tabs */
-.MuiTabs-root {
-  .MuiTab-root {
-    &:focus,
-    &:active {
-      outline: none !important;
-      border: none !important;
-      box-shadow: none !important;
-    }
-  }
-}
+/* Keep MUI defaults; remove harsh global resets */
 
 /* Remove focus borders from Buttons */
-.MuiButton-root {
-  &:focus,
-  &:active {
-    outline: none !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
-}
+/* Buttons retain their visual focus and active states */
 
 /* Remove focus borders from TextField */
-.MuiTextField-root {
-  .MuiOutlinedInput-root {
-    &:focus,
-    &:active {
-      outline: none !important;
-      border: none !important;
-      box-shadow: none !important;
-    }
-    
-    .MuiOutlinedInput-notchedOutline {
-      &:focus,
-      &:active {
-        border: none !important;
-        box-shadow: none !important;
-      }
-    }
-  }
-}
+/* Inputs keep their outlined borders on focus */
 
 /* Remove focus borders from Paper */
-.MuiPaper-root {
-  &:focus,
-  &:active {
-    outline: none !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
-}
+/* Paper retains border/shadow */
 
 /* Remove focus borders from Box */
-.MuiBox-root {
-  &:focus,
-  &:active {
-    outline: none !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
-}
+/* Box no-op */
 
 /* Remove focus borders from Typography */
-.MuiTypography-root {
-  &:focus,
-  &:active {
-    outline: none !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
-}
+/* Typography no-op */
 
 /* Remove focus borders from Alert */
-.MuiAlert-root {
-  &:focus,
-  &:active {
-    outline: none !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
-}
+/* Alert no-op */
 
 /* Remove focus borders from CircularProgress */
-.MuiCircularProgress-root {
-  &:focus,
-  &:active {
-    outline: none !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
-} 
+/* Progress no-op */
