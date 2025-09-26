@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { initDb } from "./db";
+import dotenv from "dotenv";
 import projectsRouter from "./projects";
 import marketRouter from "./market";
 import forecastRouter from "./forecast";
@@ -9,6 +10,8 @@ import { authMiddleware } from "./middleware/auth";
 
 const app = express();
 const PORT = 3001;
+
+dotenv.config();
 
 app.use(cors());
 app.use(express.json());

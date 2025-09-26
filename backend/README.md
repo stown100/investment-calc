@@ -1,6 +1,6 @@
 # Backend - Investment Calculator API
 
-Server-side part of the Investment Calculator application, built on Node.js using Express and SQLite.
+Server-side part of the Investment Calculator application, built on Node.js using Express and MongoDB.
 
 ## 🏗️ Architecture
 
@@ -10,9 +10,9 @@ The backend is built on the principle of simple and efficient architecture:
 backend/
 ├── src/
 │   ├── index.ts          # Entry point and server configuration
-│   ├── db.ts             # Database configuration and initialization
+│   ├── db.ts             # MongoDB connection and collections
 │   └── projects.ts       # API endpoints for working with projects
-├── database.sqlite       # SQLite database
+├── .env                  # Environment vars (MONGODB_URI, MONGODB_DB, JWT_SECRET)
 ├── package.json          # Dependencies and scripts
 └── tsconfig.json         # TypeScript configuration
 ```
@@ -21,19 +21,21 @@ backend/
 
 - **Node.js** - JavaScript server platform
 - **Express 5** - modern web framework for Node.js
-- **SQLite** - embedded database
+- **MongoDB** - database
 - **TypeScript** - typed JavaScript
 - **CORS** - cross-origin request support
 
 ## 📦 Dependencies
 
 ### Core Dependencies
+
 - `express` - web framework
 - `cors` - CORS middleware
-- `sqlite` - SQLite driver
-- `sqlite3` - native SQLite support
+- `mongodb` - MongoDB driver
+- `dotenv` - env vars loader
 
 ### Development Dependencies
+
 - `typescript` - TypeScript compiler
 - `ts-node` - TypeScript file execution
 - `@types/*` - TypeScript types
@@ -41,20 +43,24 @@ backend/
 ## 🚀 Installation and Setup
 
 ### Prerequisites
+
 - Node.js 18+
 - npm or yarn
 
 ### Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### Run in Development Mode
+
 ```bash
 npm run dev
 ```
 
 ### Run in Production Mode
+
 ```bash
 npm start
 ```
@@ -63,25 +69,18 @@ The server will be available at: `http://localhost:3001`
 
 ## 📊 Database
 
-### SQLite
-The project uses SQLite as an embedded database. The `database.sqlite` file is created automatically on first run.
+### MongoDB
 
-### Table Structure
+The project uses MongoDB. Configure connection via `.env`.
 
-#### `projects` Table
-```sql
-CREATE TABLE projects (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    annualPercent REAL NOT NULL,
-    startDate TEXT NOT NULL,
-    investedAmount REAL NOT NULL,
-    createdAt TEXT NOT NULL,
-    updatedAt TEXT NOT NULL
-);
-```
+### Collections
+
+- `projects` - investments
+- `users` - auth users (email/password)
+- `daily_prices` - cached market prices
 
 ### Project Fields
+
 - `id` - unique identifier (UUID)
 - `name` - project name
 - `annualPercent` - annual return percentage
@@ -93,26 +92,31 @@ CREATE TABLE projects (
 ## 🌐 API Endpoints
 
 ### Base URL
+
 ```
 http://localhost:3001/api
 ```
 
 ### Get Projects List
+
 ```http
 GET /api/projects
 ```
 
 **Query Parameters:**
+
 - `sortBy` - sorting field (`name`, `annualPercent`, `startDate`, `investedAmount`)
 - `sortOrder` - sorting order (`asc`, `desc`)
 - `status` - project status (`all`, `active`, `pending`)
 
 **Example Request:**
+
 ```bash
 curl "http://localhost:3001/api/projects?sortBy=name&sortOrder=asc&status=all"
 ```
 
 **Response:**
+
 ```json
 [
   {
@@ -128,11 +132,13 @@ curl "http://localhost:3001/api/projects?sortBy=name&sortOrder=asc&status=all"
 ```
 
 ### Create New Project
+
 ```http
 POST /api/projects
 ```
 
 **Request Body:**
+
 ```json
 {
   "name": "New Project",
@@ -143,6 +149,7 @@ POST /api/projects
 ```
 
 **Response:**
+
 ```json
 {
   "id": "generated-uuid",
@@ -156,11 +163,13 @@ POST /api/projects
 ```
 
 ### Update Project
+
 ```http
 PUT /api/projects/:id
 ```
 
 **Path Parameters:**
+
 - `id` - project identifier
 
 **Request Body:** (same as creation)
@@ -168,14 +177,17 @@ PUT /api/projects/:id
 **Response:** Updated project object
 
 ### Delete Project
+
 ```http
 DELETE /api/projects/:id
 ```
 
 **Path Parameters:**
+
 - `id` - project identifier
 
 **Response:**
+
 ```json
 {
   "message": "Project deleted successfully"
@@ -187,31 +199,39 @@ DELETE /api/projects/:id
 ### Code Structure
 
 #### `src/index.ts`
+
 Main server file:
+
 - Express application setup
 - Middleware connection (CORS, JSON parsing)
 - Route connection
 - Server startup
 
 #### `src/db.ts`
+
 Database management:
-- SQLite connection initialization
-- Table creation on first run
-- Export database functions
+
+- Mongo connection and collections
+- Index creation
 
 #### `src/projects.ts`
+
 Projects API:
+
 - Route definitions
 - Input data validation
 - CRUD operations business logic
 - Error handling
 
 ### Middleware
+
 - **CORS** - allows requests from frontend
 - **JSON parsing** - JSON parsing in requests
 
 ### Error Handling
+
 API returns appropriate HTTP status codes:
+
 - `200` - successful request
 - `400` - incorrect data
 - `404` - project not found
@@ -220,6 +240,7 @@ API returns appropriate HTTP status codes:
 ## 🧪 Testing
 
 For API testing you can use:
+
 - **Postman** - GUI for API testing
 - **curl** - command line
 - **Thunder Client** - VS Code extension
@@ -228,6 +249,7 @@ For API testing you can use:
 ### Testing Examples
 
 #### Create Project
+
 ```bash
 curl -X POST http://localhost:3001/api/projects \
   -H "Content-Type: application/json" \
@@ -240,6 +262,7 @@ curl -X POST http://localhost:3001/api/projects \
 ```
 
 #### Get Projects
+
 ```bash
 curl "http://localhost:3001/api/projects"
 ```
@@ -247,6 +270,7 @@ curl "http://localhost:3001/api/projects"
 ## 📝 Logging
 
 The server outputs logs to console:
+
 - Startup information
 - Database connection errors
 - API request errors
@@ -254,11 +278,13 @@ The server outputs logs to console:
 ## 🔒 Security
 
 ### Current Measures
+
 - Input data validation
 - CORS settings
 - Error handling
 
 ### Production Recommendations
+
 - Authentication and authorization
 - Rate limiting
 - Schema-level validation
@@ -269,16 +295,21 @@ The server outputs logs to console:
 ## 🚀 Deployment
 
 ### Local Development
+
 ```bash
+cp .env.example .env
+# edit .env, then
 npm run dev
 ```
 
 ### Production
+
 ```bash
 npm start
 ```
 
 ### Docker (Optional)
+
 ```dockerfile
 FROM node:18-alpine
 WORKDIR /app
@@ -294,6 +325,7 @@ CMD ["npm", "start"]
 We welcome contributions to backend development!
 
 ### Areas for Improvement
+
 - Adding tests
 - Improving validation
 - Adding authentication

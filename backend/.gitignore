@@ -1,0 +1,9 @@
+.env
+database.sqlite
+*.db
+*.sqlite
+*.sqlite3
+node_modules
+coverage
+dist
+

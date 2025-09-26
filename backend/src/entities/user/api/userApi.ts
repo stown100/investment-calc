@@ -6,7 +6,7 @@ import {
 } from "../types";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { db } from "../../../db";
+import { usersCollection, openDb } from "../../../db";
 
 const JWT_SECRET =
   process.env.JWT_SECRET || "your-secret-key-change-in-production";
@@ -16,10 +16,9 @@ export const createUser = async (
 ): Promise<User> => {
   const { email, password } = userData;
 
-  // Check if user already exists
-  const existingUser = await db.get("SELECT * FROM users WHERE email = ?", [
-    email,
-  ]);
+  await openDb();
+  const col = usersCollection();
+  const existingUser = await col.findOne({ email });
   if (existingUser) {
     throw new Error("User with this email already exists");
   }
@@ -30,15 +29,13 @@ export const createUser = async (
 
   const now = new Date().toISOString();
   const userId = Math.random().toString(36).substr(2, 9);
-
-  const result = await db.run(
-    "INSERT INTO users (id, email, password, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)",
-    [userId, email, hashedPassword, now, now]
-  );
-
-  if (result.changes === 0) {
-    throw new Error("Failed to create user");
-  }
+  await col.insertOne({
+    id: userId,
+    email,
+    password: hashedPassword,
+    createdAt: now,
+    updatedAt: now,
+  });
 
   return {
     id: userId,
@@ -55,7 +52,9 @@ export const authenticateUser = async (
   const { email, password } = userData;
 
   // Find user by email
-  const user = await db.get("SELECT * FROM users WHERE email = ?", [email]);
+  await openDb();
+  const col = usersCollection();
+  const user = await col.findOne({ email });
   if (!user) {
     throw new Error("Invalid email or password");
   }
@@ -81,11 +80,15 @@ export const authenticateUser = async (
 };
 
 export const getUserById = async (id: string): Promise<User | null> => {
-  const user = await db.get("SELECT * FROM users WHERE id = ?", [id]);
-  return user || null;
+  await openDb();
+  const col = usersCollection();
+  const user = await col.findOne({ id }, { projection: { _id: 0 } });
+  return (user as any) || null;
 };
 
 export const getUserByEmail = async (email: string): Promise<User | null> => {
-  const user = await db.get("SELECT * FROM users WHERE email = ?", [email]);
-  return user || null;
+  await openDb();
+  const col = usersCollection();
+  const user = await col.findOne({ email }, { projection: { _id: 0 } });
+  return (user as any) || null;
 };

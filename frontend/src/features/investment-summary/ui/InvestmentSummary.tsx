@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { getProjectsSummary, ProjectsSummary } from "../../../entities/project/api/projectApi";
+import React, { useEffect } from "react";
 import { Box, Typography, Stack } from "@mui/material";
 import {
   Business as BusinessIcon,
@@ -7,29 +6,16 @@ import {
   AttachMoney as MoneyIcon,
 } from "@mui/icons-material";
 import { StyledCard } from "../../../shared/ui/StyledCard";
+import { useProjectsSummaryStore } from "../../../entities/project/model/summaryStore";
 
 // Displays a summary of all investments
 export const InvestmentSummary = () => {
-  const [summary, setSummary] = useState<ProjectsSummary | null>(null);
+  const summary = useProjectsSummaryStore((s) => s.summary);
+  const fetchSummary = useProjectsSummaryStore((s) => s.fetchSummary);
 
   useEffect(() => {
-    let isMounted = true;
-    getProjectsSummary()
-      .then((data) => {
-        if (isMounted) setSummary(data);
-      })
-      .catch(() => {
-        if (isMounted) setSummary({
-          totalProjects: 0,
-          averagePercent: 0,
-          totalInvestment: 0,
-          activeInvestments: 0,
-        });
-      });
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    fetchSummary();
+  }, [fetchSummary]);
 
   return (
     <Stack spacing={1} sx={{ mb: 2 }}>
