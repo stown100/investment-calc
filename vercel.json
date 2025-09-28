@@ -9,11 +9,5 @@
       "source": "/api/(.*)",
       "destination": "/api/$1"
     }
-  ],
-  "env": {
-    "MONGODB_URI": "@mongodb_uri",
-    "MONGODB_DB": "@mongodb_db", 
-    "JWT_SECRET": "@jwt_secret",
-    "CORS_ORIGIN": "@cors_origin"
-  }
+  ]
 }
