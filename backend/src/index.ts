@@ -9,11 +9,14 @@ import authRouter from "./entities/user/api/authRouter";
 import { authMiddleware } from "./middleware/auth";
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 dotenv.config();
 
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
 
 // Public routes
@@ -25,7 +28,16 @@ app.use("/api/market", authMiddleware, marketRouter);
 app.use("/api/forecast", authMiddleware, forecastRouter);
 
 app.get("/", (req, res) => {
-  res.send("API is running");
+  res.json({ 
+    status: "API is running",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({ status: "healthy", timestamp: new Date().toISOString() });
 });
 
 initDb().then(() => {
