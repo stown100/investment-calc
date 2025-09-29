@@ -4,6 +4,8 @@ import { cors, handleError } from '../_lib/middleware';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (cors(req, res)) return;
 
@@ -21,28 +23,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await connectToDatabase();
     const users = usersCollection();
 
-    // Find user
+    // Find user by email
     const user = await users.findOne({ email: email.toLowerCase() });
     if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    // Verify password
+    // Check password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    // Generate JWT
-    const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret) {
-      throw new Error('JWT_SECRET not configured');
-    }
-
+    // Generate JWT token
     const token = jwt.sign(
       { userId: user.id, email: user.email },
-      jwtSecret,
-      { expiresIn: '7d' }
+      JWT_SECRET,
+      { expiresIn: '24h' }
     );
 
     res.json({
@@ -53,6 +50,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       },
     });
   } catch (error) {
-    handleError(res, error, 'Failed to authenticate user');
+    handleError(res, error, 'Login failed');
   }
 }
