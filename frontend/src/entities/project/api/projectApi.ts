@@ -1,7 +1,7 @@
 import { Project } from "../model/types";
 import type { ProjectLite } from "../../project/types";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export interface SortParams {
   sortBy?: string;
@@ -23,7 +23,7 @@ const getAuthHeaders = () => {
 export async function getAllProjects(
   sortParams?: SortParams
 ): Promise<Project[]> {
-  const url = new URL(`${API_URL}/api/projects`);
+  const url = new URL(`${API_URL}/projects`);
 
   if (sortParams?.sortBy) {
     url.searchParams.append("sortBy", sortParams.sortBy);
@@ -52,7 +52,7 @@ export async function getAllProjects(
 }
 
 export async function addProject(project: Project): Promise<void> {
-  const res = await fetch(`${API_URL}/api/projects`, {
+  const res = await fetch(`${API_URL}/projects`, {
     method: "POST",
     headers: getAuthHeaders(),
     body: JSON.stringify(project),
@@ -61,7 +61,7 @@ export async function addProject(project: Project): Promise<void> {
 }
 
 export async function updateProject(project: Project): Promise<void> {
-  const res = await fetch(`${API_URL}/api/projects/${project.id}`, {
+  const res = await fetch(`${API_URL}/projects/${project.id}`, {
     method: "PUT",
     headers: getAuthHeaders(),
     body: JSON.stringify(project),
@@ -70,7 +70,7 @@ export async function updateProject(project: Project): Promise<void> {
 }
 
 export async function removeProject(id: string): Promise<void> {
-  const res = await fetch(`${API_URL}/api/projects/${id}`, {
+  const res = await fetch(`${API_URL}/projects/${id}`, {
     method: "DELETE",
     headers: getAuthHeaders(),
   });
@@ -85,7 +85,7 @@ export type ProjectsSummary = {
 };
 
 export async function getProjectsSummary(): Promise<ProjectsSummary> {
-  const res = await fetch(`${API_URL}/api/projects/summary`, {
+  const res = await fetch(`${API_URL}/projects/summary`, {
     headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error("Failed to fetch projects summary");
@@ -94,7 +94,7 @@ export async function getProjectsSummary(): Promise<ProjectsSummary> {
 
 // Lightweight list of all projects for fast select and calc
 export async function getAllProjectsLite(): Promise<ProjectLite[]> {
-  const res = await fetch(`${API_URL}/api/projects/all-lite`, {
+  const res = await fetch(`${API_URL}/projects/all-lite`, {
     headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error("Failed to fetch lite projects");
