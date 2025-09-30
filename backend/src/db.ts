@@ -15,7 +15,19 @@ export async function openDb(): Promise<Db> {
     throw new Error("MONGODB_URI environment variable is not set");
   }
   
-  mongoClient = new MongoClient(uri);
+  mongoClient = new MongoClient(uri, {
+    serverSelectionTimeoutMS: 30000,
+    connectTimeoutMS: 30000,
+    socketTimeoutMS: 30000,
+    maxPoolSize: 10,
+    minPoolSize: 1,
+    maxIdleTimeMS: 30000,
+    serverApi: {
+      version: '1' as const,
+      strict: true,
+      deprecationErrors: true,
+    }
+  });
   await mongoClient.connect();
   mongoDb = mongoClient.db(dbName);
   return mongoDb;
