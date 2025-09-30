@@ -1,12 +1,12 @@
 import express from "express";
 import cors from "cors";
-import { initDb } from "../src/db";
+import { initDb } from "./src/db";
 import dotenv from "dotenv";
-import projectsRouter from "../src/projects";
-import marketRouter from "../src/market";
-import forecastRouter from "../src/forecast";
-import authRouter from "../src/entities/user/api/authRouter";
-import { authMiddleware } from "../src/middleware/auth";
+import projectsRouter from "./src/projects";
+import marketRouter from "./src/market";
+import forecastRouter from "./src/forecast";
+import authRouter from "./src/entities/user/api/authRouter";
+import { authMiddleware } from "./src/middleware/auth";
 
 const app = express();
 
