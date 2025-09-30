@@ -6,8 +6,16 @@ export let mongoDb: Db;
 export async function openDb(): Promise<Db> {
   if (mongoDb) return mongoDb;
   const uri = process.env.MONGODB_URI;
-  const dbName = process.env.MONGODB_DB;
-  mongoClient = new MongoClient(uri as string);
+  const dbName = process.env.MONGODB_DB || "investment_calc";
+  
+  console.log("MongoDB URI:", uri ? "URI is set" : "URI is not set");
+  console.log("MongoDB DB:", dbName);
+  
+  if (!uri) {
+    throw new Error("MONGODB_URI environment variable is not set");
+  }
+  
+  mongoClient = new MongoClient(uri);
   await mongoClient.connect();
   mongoDb = mongoClient.db(dbName);
   return mongoDb;
