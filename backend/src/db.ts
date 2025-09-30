@@ -1,10 +1,13 @@
-import { MongoClient, Db, Collection } from "mongodb";
+import mongoose from "mongoose";
 
-export let mongoClient: MongoClient;
-export let mongoDb: Db;
+let isConnected = false;
 
-export async function openDb(): Promise<Db> {
-  if (mongoDb) return mongoDb;
+export async function connectToDatabase(): Promise<void> {
+  if (isConnected) {
+    console.log("Already connected to MongoDB");
+    return;
+  }
+
   const uri = process.env.MONGODB_URI;
   const dbName = process.env.MONGODB_DB || "investment_calc";
   
@@ -14,57 +17,78 @@ export async function openDb(): Promise<Db> {
   if (!uri) {
     throw new Error("MONGODB_URI environment variable is not set");
   }
-  
+
   try {
-    mongoClient = new MongoClient(uri, {
+    console.log("Attempting to connect to MongoDB...");
+    
+    await mongoose.connect(uri, {
+      dbName: dbName,
       serverSelectionTimeoutMS: 5000,
       connectTimeoutMS: 10000,
       socketTimeoutMS: 0,
       maxPoolSize: 1,
       minPoolSize: 0,
       maxIdleTimeMS: 10000,
-      retryWrites: true,
-      retryReads: true,
     });
-    
-    console.log("Attempting to connect to MongoDB...");
-    await mongoClient.connect();
-    console.log("Successfully connected to MongoDB");
-    
-    mongoDb = mongoClient.db(dbName);
+
+    isConnected = true;
+    console.log("Successfully connected to MongoDB with Mongoose");
     
     // Test the connection
-    await mongoDb.admin().ping();
+    await mongoose.connection.db?.admin().ping();
     console.log("MongoDB ping successful");
     
-    return mongoDb;
   } catch (error) {
     console.error("MongoDB connection error:", error);
-    if (mongoClient) {
-      await mongoClient.close();
-    }
+    isConnected = false;
     throw error;
   }
 }
 
-export async function initDb(): Promise<Db> {
-  const db = await openDb();
-  // Ensure indexes
-  await db.collection("users").createIndex({ email: 1 }, { unique: true });
-  await db
-    .collection("daily_prices")
-    .createIndex({ symbol: 1, date: 1 }, { unique: true });
-  return db;
+export async function initDb(): Promise<void> {
+  await connectToDatabase();
+  
+  // Create indexes
+  try {
+    const db = mongoose.connection.db;
+    if (db) {
+      await db.collection("users").createIndex({ email: 1 }, { unique: true });
+      await db.collection("daily_prices").createIndex({ symbol: 1, date: 1 }, { unique: true });
+      console.log("Database indexes created successfully");
+    }
+  } catch (error) {
+    console.error("Error creating indexes:", error);
+    // Don't throw here, indexes might already exist
+  }
 }
 
-export function usersCollection(): Collection {
-  return mongoDb.collection("users");
+// Helper functions for collections
+export function getUsersCollection() {
+  return mongoose.connection.db?.collection("users");
 }
 
-export function projectsCollection(): Collection {
-  return mongoDb.collection("projects");
+export function getProjectsCollection() {
+  return mongoose.connection.db?.collection("projects");
 }
 
-export function dailyPricesCollection(): Collection {
-  return mongoDb.collection("daily_prices");
+export function getDailyPricesCollection() {
+  return mongoose.connection.db?.collection("daily_prices");
+}
+
+// Legacy compatibility functions
+export async function openDb() {
+  await connectToDatabase();
+  return mongoose.connection.db;
+}
+
+export function usersCollection() {
+  return getUsersCollection();
+}
+
+export function projectsCollection() {
+  return getProjectsCollection();
+}
+
+export function dailyPricesCollection() {
+  return getDailyPricesCollection();
 }
