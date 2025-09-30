@@ -48,6 +48,11 @@ const initializeApp = async () => {
 
 // For Vercel serverless functions
 export default async (req: any, res: any) => {
-  await initializeApp();
-  return app(req, res);
+  try {
+    await initializeApp();
+    return app(req, res);
+  } catch (error) {
+    console.error('Error in serverless function:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 };
