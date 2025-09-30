@@ -23,9 +23,6 @@ export async function openDb(): Promise<Db> {
       maxPoolSize: 1,
       minPoolSize: 0,
       maxIdleTimeMS: 10000,
-      tls: true,
-      tlsInsecure: false,
-      directConnection: false,
       retryWrites: true,
       retryReads: true,
     });
