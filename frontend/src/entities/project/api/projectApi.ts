@@ -48,7 +48,9 @@ export async function getAllProjects(
     headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error("Failed to fetch projects");
-  return res.json();
+  const projects = await res.json();
+
+  return projects;
 }
 
 export async function addProject(project: Project): Promise<void> {

@@ -197,6 +197,7 @@ export async function ensureHistoryForSymbol(
 router.get("/crypto/:symbol/history", async (req, res) => {
   const symbol = (req.params.symbol || "").toUpperCase();
   const forceRefresh = String(req.query.forceRefresh || "false") === "true";
+
   await openDb();
   const col = dailyPricesCollection();
 

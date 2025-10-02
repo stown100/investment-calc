@@ -4,23 +4,17 @@ let isConnected = false;
 
 export async function connectToDatabase(): Promise<void> {
   if (isConnected) {
-    console.log("Already connected to MongoDB");
     return;
   }
 
   const uri = process.env.MONGODB_URI;
   const dbName = process.env.MONGODB_DB || "investment_calc";
   
-  console.log("MongoDB URI:", uri ? "URI is set" : "URI is not set");
-  console.log("MongoDB DB:", dbName);
-  
   if (!uri) {
     throw new Error("MONGODB_URI environment variable is not set");
   }
 
   try {
-    console.log("Attempting to connect to MongoDB...");
-    
     await mongoose.connect(uri, {
       dbName: dbName,
       serverSelectionTimeoutMS: 5000,
@@ -32,11 +26,9 @@ export async function connectToDatabase(): Promise<void> {
     });
 
     isConnected = true;
-    console.log("Successfully connected to MongoDB with Mongoose");
     
     // Test the connection
     await mongoose.connection.db?.admin().ping();
-    console.log("MongoDB ping successful");
     
   } catch (error) {
     console.error("MongoDB connection error:", error);
@@ -54,7 +46,6 @@ export async function initDb(): Promise<void> {
     if (db) {
       await db.collection("users").createIndex({ email: 1 }, { unique: true });
       await db.collection("daily_prices").createIndex({ symbol: 1, date: 1 }, { unique: true });
-      console.log("Database indexes created successfully");
     }
   } catch (error) {
     console.error("Error creating indexes:", error);

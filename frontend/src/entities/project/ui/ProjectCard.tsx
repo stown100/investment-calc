@@ -19,6 +19,7 @@ import dayjs from "dayjs";
 import { StyledCard } from "../../../shared/ui/StyledCard";
 import { ConfirmDialog } from "../../../shared/ui";
 import { EditProjectModal } from "../../../features/edit-project/ui/EditProjectModal";
+import { ProjectDetailsModal } from "../../../features/project-details/ui/ProjectDetailsModal";
 import { RateType } from "../types";
 import { Project } from "../model/types";
 
@@ -33,6 +34,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 }) => {
   const [editOpen, setEditOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const now = dayjs();
   const isActive = now.isAfter(dayjs(project.startDate));
   const startDate = dayjs(project.startDate);
@@ -45,10 +47,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         sx={{
           borderRadius: 2,
           transition: "all 0.2s ease-in-out",
+          cursor: "pointer",
           "&:hover": {
             elevation: 4,
           },
         }}
+        onClick={() => setDetailsOpen(true)}
       >
         <CardContent sx={{ p: 2 }}>
           <Box
@@ -163,7 +167,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               <Tooltip title="Edit project">
                 <IconButton
                   size="small"
-                  onClick={() => setEditOpen(true)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditOpen(true);
+                  }}
                   sx={{
                     color: "primary.main",
                     "&:hover": {
@@ -178,7 +185,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               <Tooltip title="Delete project">
                 <IconButton
                   size="small"
-                  onClick={() => setConfirmOpen(true)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setConfirmOpen(true);
+                  }}
                   sx={{
                     color: "error.main",
                     "&:hover": {
@@ -194,6 +204,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           </Box>
         </CardContent>
       </StyledCard>
+
+      <ProjectDetailsModal
+        project={project}
+        open={detailsOpen}
+        onClose={() => setDetailsOpen(false)}
+      />
 
       <EditProjectModal
         opened={editOpen}

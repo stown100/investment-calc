@@ -142,7 +142,7 @@ export const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(255, 255, 255, 0.8)",
+            backdropFilter: "blur(4px)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -153,11 +153,6 @@ export const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
           <CircularProgress />
         </Box>
       )}
-
-      <Typography variant="h6" component="h3" sx={{ mb: 2, fontWeight: 500 }}>
-        Project Details
-      </Typography>
-
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
@@ -165,7 +160,7 @@ export const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
       )}
 
       <form onSubmit={handleSubmit}>
-        <Stack spacing={2}>
+        <Stack spacing={2} pt={0.6}>
           <TextField
             label="Project Name"
             placeholder="Enter project name"

@@ -187,6 +187,7 @@ router.get("/crypto/:symbol", async (req, res) => {
       parseInt(String(req.query.simulations || "10000")) || 10000
     )
   );
+
   await openDb();
   const col = dailyPricesCollection();
   try {
