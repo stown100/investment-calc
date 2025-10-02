@@ -50,6 +50,7 @@ router.get("/", async (req, res) => {
     ...p,
     rateType: p.rateType || "fixed",
   }));
+
   res.json(normalized);
 });
 
@@ -137,7 +138,10 @@ router.post("/", async (req, res) => {
     investedAmount,
     rateType,
     marketSymbol,
+    tokenAmount,
+    tokenPrice,
   } = req.body;
+
   if (!id || !name || !startDate || !createdAt || investedAmount == null) {
     return res.status(400).json({ error: "Missing required fields" });
   }
@@ -163,6 +167,8 @@ router.post("/", async (req, res) => {
     investedAmount: Number(investedAmount),
     rateType: normalizedRateType,
     marketSymbol: marketSymbol ?? null,
+    tokenAmount: tokenAmount ? Number(tokenAmount) : null,
+    tokenPrice: tokenPrice ? Number(tokenPrice) : null,
   });
   res.status(201).json({ message: "Project added" });
 });
@@ -178,6 +184,8 @@ router.put("/:id", async (req, res) => {
     investedAmount,
     rateType,
     marketSymbol,
+    tokenAmount,
+    tokenPrice,
   } = req.body;
   await openDb();
   const col = projectsCollection();
@@ -195,6 +203,8 @@ router.put("/:id", async (req, res) => {
         investedAmount: Number(investedAmount),
         rateType: normalizedRateType,
         marketSymbol: marketSymbol ?? null,
+        tokenAmount: tokenAmount ? Number(tokenAmount) : null,
+        tokenPrice: tokenPrice ? Number(tokenPrice) : null,
       },
     }
   );

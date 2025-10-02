@@ -11,6 +11,9 @@ export type ProjectEntity = {
   createdAt: string;
   investedAmount: number;
   rateType: RateType;
+  marketSymbol?: string | null;
+  tokenAmount?: number; // For crypto projects
+  tokenPrice?: number; // For crypto projects
 };
 
 

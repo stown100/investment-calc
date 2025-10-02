@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { Typography, Box, Button } from "@mui/material";
-import { Add as AddIcon } from "@mui/icons-material";
+import { Typography, Box } from "@mui/material";
 import { ProjectList } from "../../entities/project/ui/ProjectList";
 import { ProjectSorting } from "../../entities/project/ui/ProjectSorting";
 import { ProjectStatusFilter } from "../../entities/project/ui/ProjectStatusFilter";
@@ -8,10 +7,13 @@ import { ProjectSearch } from "../../entities/project/ui/ProjectSearch";
 import { Calculator } from "../../features/calculator/ui/Calculator";
 import { InvestmentSummary } from "../../features/investment-summary/ui/InvestmentSummary";
 import { AddProjectModal } from "../../features/add-project/ui/AddProjectModal";
+import { AddCryptoProjectModal } from "../../features/add-project/ui/AddCryptoProjectModal";
+import { AddProjectDropdown } from "../../features/add-project/ui/AddProjectDropdown";
 
 // Main page of the application
 export const HomePage = () => {
-  const [modalOpened, setModalOpened] = useState(false);
+  const [regularModalOpened, setRegularModalOpened] = useState(false);
+  const [cryptoModalOpened, setCryptoModalOpened] = useState(false);
 
   return (
     <Box sx={{ width: "100vw", py: 2 }}>
@@ -37,19 +39,10 @@ export const HomePage = () => {
               <Typography variant="h5" component="h2" sx={{ fontWeight: 500 }}>
                 Project List
               </Typography>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => setModalOpened(true)}
-                size="small"
-                sx={{
-                  borderRadius: 2,
-                  textTransform: "none",
-                  boxShadow: 2,
-                }}
-              >
-                Add Project
-              </Button>
+              <AddProjectDropdown
+                onAddRegularProject={() => setRegularModalOpened(true)}
+                onAddCryptoProject={() => setCryptoModalOpened(true)}
+              />
             </Box>
 
             <Box
@@ -74,8 +67,12 @@ export const HomePage = () => {
         </Box>
 
         <AddProjectModal
-          opened={modalOpened}
-          onClose={() => setModalOpened(false)}
+          opened={regularModalOpened}
+          onClose={() => setRegularModalOpened(false)}
+        />
+        <AddCryptoProjectModal
+          opened={cryptoModalOpened}
+          onClose={() => setCryptoModalOpened(false)}
         />
       </Box>
     </Box>

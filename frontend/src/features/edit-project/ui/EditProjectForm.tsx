@@ -144,10 +144,6 @@ export const EditProjectForm = ({
         </Box>
       )}
 
-      <Typography variant="h6" component="h3" sx={{ mb: 2, fontWeight: 500 }}>
-        Edit Project Details
-      </Typography>
-
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
@@ -155,7 +151,7 @@ export const EditProjectForm = ({
       )}
 
       <form onSubmit={handleSubmit}>
-        <Stack spacing={2}>
+        <Stack spacing={2} pt={0.6}>
           <TextField
             label="Project Name"
             placeholder="Enter project name"
