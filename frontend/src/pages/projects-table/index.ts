@@ -1,0 +1,1 @@
+export { ProjectsTablePage } from "./ProjectsTablePage";

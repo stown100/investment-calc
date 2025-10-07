@@ -61,9 +61,6 @@ export const UnifiedTable = ({
             minHeight: 40,
             "& .MuiTab-root": {
               outline: "none",
-              "&:focus": {
-                outline: "none",
-              },
               "&.Mui-focusVisible": {
                 outline: "none",
                 boxShadow: "none",
@@ -78,9 +75,6 @@ export const UnifiedTable = ({
               minHeight: 40,
               textTransform: "none",
               outline: "none",
-              "&:focus": {
-                outline: "none",
-              },
               "&.Mui-focusVisible": {
                 outline: "none",
                 boxShadow: "none",
@@ -94,9 +88,6 @@ export const UnifiedTable = ({
               minHeight: 40,
               textTransform: "none",
               outline: "none",
-              "&:focus": {
-                outline: "none",
-              },
               "&.Mui-focusVisible": {
                 outline: "none",
                 boxShadow: "none",
