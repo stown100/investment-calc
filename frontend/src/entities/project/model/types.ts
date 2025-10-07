@@ -11,6 +11,7 @@ export type Project = {
   // For crypto projects - store additional data in the name or use a separate field
   tokenAmount?: number; // Number of tokens (for crypto projects)
   tokenPrice?: number; // Price per token at purchase (for crypto projects)
+  includeInSummary?: boolean; // Whether to include in summary calculations
 };
 
 // Тип для форм, где числовые поля могут быть строками

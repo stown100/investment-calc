@@ -140,6 +140,15 @@ const lightTheme = createTheme({
         root: {
           textTransform: "none",
           borderRadius: 8,
+          "&:focus": {
+            outline: "none",
+          },
+          "&:active": {
+            outline: "none",
+          },
+          "&.Mui-focusVisible": {
+            outline: "none",
+          },
         },
       },
     },
@@ -155,6 +164,81 @@ const lightTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          "&:focus": {
+            outline: "none",
+          },
+          "&:active": {
+            outline: "none",
+          },
+          "&.Mui-focusVisible": {
+            outline: "none",
+          },
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          "&:focus": {
+            outline: "none",
+          },
+          "&:active": {
+            outline: "none",
+          },
+          "&.Mui-focusVisible": {
+            outline: "none",
+          },
+        },
+      },
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          "&:focus": {
+            outline: "none",
+          },
+          "&:active": {
+            outline: "none",
+          },
+          "&.Mui-focusVisible": {
+            outline: "none",
+          },
+        },
+      },
+    },
+    MuiSwitch: {
+      styleOverrides: {
+        root: {
+          "&:focus": {
+            outline: "none",
+          },
+          "&:active": {
+            outline: "none",
+          },
+          "&.Mui-focusVisible": {
+            outline: "none",
+          },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          "&:focus": {
+            outline: "none",
+          },
+          "&:active": {
+            outline: "none",
+          },
+          "&.Mui-focusVisible": {
+            outline: "none",
+          },
         },
       },
     },
@@ -279,6 +363,15 @@ const darkTheme = createTheme({
         root: {
           textTransform: "none",
           borderRadius: 8,
+          "&:focus": {
+            outline: "none",
+          },
+          "&:active": {
+            outline: "none",
+          },
+          "&.Mui-focusVisible": {
+            outline: "none",
+          },
         },
       },
     },
@@ -293,6 +386,81 @@ const darkTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          "&:focus": {
+            outline: "none",
+          },
+          "&:active": {
+            outline: "none",
+          },
+          "&.Mui-focusVisible": {
+            outline: "none",
+          },
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          "&:focus": {
+            outline: "none",
+          },
+          "&:active": {
+            outline: "none",
+          },
+          "&.Mui-focusVisible": {
+            outline: "none",
+          },
+        },
+      },
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          "&:focus": {
+            outline: "none",
+          },
+          "&:active": {
+            outline: "none",
+          },
+          "&.Mui-focusVisible": {
+            outline: "none",
+          },
+        },
+      },
+    },
+    MuiSwitch: {
+      styleOverrides: {
+        root: {
+          "&:focus": {
+            outline: "none",
+          },
+          "&:active": {
+            outline: "none",
+          },
+          "&.Mui-focusVisible": {
+            outline: "none",
+          },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          "&:focus": {
+            outline: "none",
+          },
+          "&:active": {
+            outline: "none",
+          },
+          "&.Mui-focusVisible": {
+            outline: "none",
+          },
         },
       },
     },

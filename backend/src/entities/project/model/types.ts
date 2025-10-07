@@ -1,6 +1,6 @@
 export enum RateType {
-  Fixed = 'fixed',
-  Floating = 'floating',
+  Fixed = "fixed",
+  Floating = "floating",
 }
 
 export type ProjectEntity = {
@@ -14,6 +14,5 @@ export type ProjectEntity = {
   marketSymbol?: string | null;
   tokenAmount?: number; // For crypto projects
   tokenPrice?: number; // For crypto projects
+  includeInSummary?: boolean; // Whether to include in summary calculations
 };
-
-

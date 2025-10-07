@@ -368,9 +368,6 @@ export const Calculator = () => {
                       "&:active": {
                         transform: "scale(0.95)",
                       },
-                      "&:focus": {
-                        outline: "none",
-                      },
                     }}
                   >
                     <CloseIcon sx={{ fontSize: "16px" }} />
@@ -435,9 +432,6 @@ export const Calculator = () => {
                 minHeight: 40,
                 "& .MuiTab-root": {
                   outline: "none",
-                  "&:focus": {
-                    outline: "none",
-                  },
                   "&.Mui-focusVisible": {
                     outline: "none",
                     boxShadow: "none",
@@ -452,9 +446,6 @@ export const Calculator = () => {
                   minHeight: 40,
                   textTransform: "none",
                   outline: "none",
-                  "&:focus": {
-                    outline: "none",
-                  },
                   "&.Mui-focusVisible": {
                     outline: "none",
                     boxShadow: "none",
@@ -468,9 +459,6 @@ export const Calculator = () => {
                   minHeight: 40,
                   textTransform: "none",
                   outline: "none",
-                  "&:focus": {
-                    outline: "none",
-                  },
                   "&.Mui-focusVisible": {
                     outline: "none",
                     boxShadow: "none",

@@ -8,6 +8,7 @@ import {
 import { Box } from "@mui/material";
 import { HomePage } from "../pages/home/HomePage";
 import { AuthPage } from "../pages/auth/AuthPage";
+import { ProjectsTablePage } from "../pages/projects-table/ProjectsTablePage";
 import { Header } from "../entities/auth/ui/Header";
 import { Loader } from "../shared/ui/Loader";
 import { useAuthStore } from "../entities/auth/model/store";
@@ -45,7 +46,10 @@ const AppLayout: React.FC = () => {
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header />
       <Box component="main" sx={{ flexGrow: 1 }}>
-        <HomePage />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/projects" element={<ProjectsTablePage />} />
+        </Routes>
       </Box>
     </Box>
   );
@@ -93,7 +97,7 @@ export const AppRouter = () => {
           />
 
           <Route
-            path="/"
+            path="/*"
             element={
               <ProtectedRoute>
                 <AppLayout />

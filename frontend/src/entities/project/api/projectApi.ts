@@ -84,6 +84,7 @@ export type ProjectsSummary = {
   averagePercent: number;
   totalInvestment: number;
   activeInvestments: number;
+  totalProfit: number;
 };
 
 export async function getProjectsSummary(): Promise<ProjectsSummary> {
@@ -101,4 +102,29 @@ export async function getAllProjectsLite(): Promise<ProjectLite[]> {
   });
   if (!res.ok) throw new Error("Failed to fetch lite projects");
   return res.json();
+}
+
+// Get all projects with summary for table view
+export async function getAllProjectsWithSummary(): Promise<{
+  projects: Project[];
+  summary: ProjectsSummary;
+}> {
+  const res = await fetch(`${API_URL}/projects/all-with-summary`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error("Failed to fetch projects with summary");
+  return res.json();
+}
+
+// Toggle project inclusion in summary
+export async function toggleProjectSummaryInclusion(
+  id: string,
+  includeInSummary: boolean
+): Promise<void> {
+  const res = await fetch(`${API_URL}/projects/${id}/summary-toggle`, {
+    method: "PATCH",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ includeInSummary }),
+  });
+  if (!res.ok) throw new Error("Failed to toggle project summary inclusion");
 }

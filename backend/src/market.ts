@@ -220,4 +220,18 @@ router.get("/crypto/:symbol/history", async (req, res) => {
   }
 });
 
+// Get current price for a symbol
+export async function getCurrentCryptoPrice(
+  symbol: string
+): Promise<{ price: number }> {
+  const { rows } = await ensureHistoryForSymbol(symbol);
+  if (rows.length === 0) {
+    throw new Error(`No price data found for ${symbol}`);
+  }
+
+  // Get the most recent price
+  const latestPrice = rows[rows.length - 1].close;
+  return { price: latestPrice };
+}
+
 export default router;
