@@ -8,6 +8,7 @@ import {
 import { Box } from "@mui/material";
 import { HomePage } from "../pages/home/HomePage";
 import { AuthPage } from "../pages/auth/AuthPage";
+import { WelcomePage } from "../pages/welcome/WelcomePage";
 import { ProjectsTablePage } from "../pages/projects-table/ProjectsTablePage";
 import { Header } from "../entities/auth/ui/Header";
 import { Loader } from "../shared/ui/Loader";
@@ -25,7 +26,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/welcome" replace />;
   }
 
   return <>{children}</>;
@@ -49,6 +50,7 @@ const AppLayout: React.FC = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/projects" element={<ProjectsTablePage />} />
+          <Route path="/welcome" element={<WelcomePage />} />
         </Routes>
       </Box>
     </Box>
@@ -87,6 +89,7 @@ export const AppRouter = () => {
     <NotificationsProvider>
       <Router>
         <Routes>
+          {/* Auth page - only for non-authenticated users */}
           <Route
             path="/auth"
             element={
@@ -96,6 +99,7 @@ export const AppRouter = () => {
             }
           />
 
+          {/* All other routes use AppLayout with unified Header */}
           <Route
             path="/*"
             element={
@@ -105,7 +109,7 @@ export const AppRouter = () => {
             }
           />
 
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/welcome" replace />} />
         </Routes>
       </Router>
     </NotificationsProvider>
