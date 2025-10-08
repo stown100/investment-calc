@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import { Box } from "@mui/material";
 import { HomePage } from "../pages/home/HomePage";
@@ -36,22 +37,37 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuthStore();
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <>{children}</>;
 };
 
 const AppLayout: React.FC = () => {
+  const location = useLocation();
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header />
       <Box component="main" sx={{ flexGrow: 1 }}>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/projects" element={<ProjectsTablePage />} />
-          <Route path="/welcome" element={<WelcomePage />} />
-        </Routes>
+        {location.pathname === "/dashboard" ? (
+          <HomePage />
+        ) : location.pathname === "/projects" ? (
+          <ProjectsTablePage />
+        ) : (
+          <HomePage />
+        )}
+      </Box>
+    </Box>
+  );
+};
+
+const WelcomeLayout: React.FC = () => {
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Header />
+      <Box component="main" sx={{ flexGrow: 1 }}>
+        <WelcomePage />
       </Box>
     </Box>
   );
@@ -85,10 +101,29 @@ export const AppRouter = () => {
     initAuth();
   }, [setLoading, setUser, setToken]);
 
+  const { isAuthenticated, isLoading } = useAuthStore();
+
   return (
     <NotificationsProvider>
       <Router>
         <Routes>
+          {/* Root redirect - to welcome for non-auth, to dashboard for auth */}
+          <Route
+            path="/"
+            element={
+              isLoading ? (
+                <Loader message="Loading..." size="large" />
+              ) : isAuthenticated ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <Navigate to="/welcome" replace />
+              )
+            }
+          />
+
+          {/* Welcome page - public, available to everyone */}
+          <Route path="/welcome" element={<WelcomeLayout />} />
+
           {/* Auth page - only for non-authenticated users */}
           <Route
             path="/auth"
@@ -99,9 +134,9 @@ export const AppRouter = () => {
             }
           />
 
-          {/* All other routes use AppLayout with unified Header */}
+          {/* Dashboard route */}
           <Route
-            path="/*"
+            path="/dashboard"
             element={
               <ProtectedRoute>
                 <AppLayout />
@@ -109,6 +144,17 @@ export const AppRouter = () => {
             }
           />
 
+          {/* Protected routes - only for authenticated users */}
+          <Route
+            path="/projects"
+            element={
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Default redirect to welcome for any unknown route */}
           <Route path="*" element={<Navigate to="/welcome" replace />} />
         </Routes>
       </Router>
