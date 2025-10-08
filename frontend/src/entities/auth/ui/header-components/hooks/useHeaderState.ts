@@ -7,7 +7,8 @@ export const useHeaderState = () => {
 
   // Determine if we should show navigation (for authenticated users on protected pages)
   const isWelcomePage = location.pathname === "/welcome";
-  const showNavigation = isAuthenticated && !isWelcomePage;
+  const isAuthPage = location.pathname === "/auth";
+  const showNavigation = isAuthenticated && !isWelcomePage && !isAuthPage;
 
   return {
     isAuthenticated,

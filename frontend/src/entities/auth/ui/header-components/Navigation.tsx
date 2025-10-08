@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Tabs,
   Tab,
@@ -10,66 +10,47 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  IconButton,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import {
-  Home as HomeIcon,
-  TableChart as TableIcon,
-  Menu as MenuIcon,
-} from "@mui/icons-material";
+import { Home as HomeIcon, TableChart as TableIcon } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 
 interface NavigationProps {
   showNavigation: boolean;
+  mobileMenuOpen: boolean;
+  onMobileMenuToggle: () => void;
 }
 
-export const Navigation: React.FC<NavigationProps> = ({ showNavigation }) => {
+export const Navigation: React.FC<NavigationProps> = ({
+  showNavigation,
+  mobileMenuOpen,
+  onMobileMenuToggle,
+}) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     navigate(newValue);
   };
 
-  const handleMobileMenuToggle = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
-
   const handleMobileNavigation = (path: string) => {
     navigate(path);
-    setMobileMenuOpen(false);
+    onMobileMenuToggle();
   };
 
   const getCurrentTab = () => {
     if (location.pathname === "/projects") return "/projects";
-    return "/";
+    return "/dashboard";
   };
 
   if (!showNavigation) return null;
 
   return (
     <>
-      {/* Mobile Menu Button */}
-      {isMobile && (
-        <IconButton
-          onClick={handleMobileMenuToggle}
-          sx={{
-            color: "white",
-            "&:hover": {
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
-            },
-          }}
-        >
-          <MenuIcon />
-        </IconButton>
-      )}
-
-      {/* Desktop Navigation Tabs */}
+      {/* Desktop Navigation Tabs - only for desktop */}
       {!isMobile && (
         <Tabs
           value={getCurrentTab()}
@@ -98,7 +79,7 @@ export const Navigation: React.FC<NavigationProps> = ({ showNavigation }) => {
             icon={<HomeIcon />}
             iconPosition="start"
             label="Dashboard"
-            value="/"
+            value="/dashboard"
             disableRipple
             disableFocusRipple
           />
@@ -117,7 +98,7 @@ export const Navigation: React.FC<NavigationProps> = ({ showNavigation }) => {
       <Drawer
         anchor="left"
         open={mobileMenuOpen}
-        onClose={handleMobileMenuToggle}
+        onClose={onMobileMenuToggle}
         sx={{
           "& .MuiDrawer-paper": {
             width: 280,
@@ -133,8 +114,8 @@ export const Navigation: React.FC<NavigationProps> = ({ showNavigation }) => {
           <List>
             <ListItem disablePadding>
               <ListItemButton
-                onClick={() => handleMobileNavigation("/")}
-                selected={location.pathname === "/"}
+                onClick={() => handleMobileNavigation("/dashboard")}
+                selected={location.pathname === "/dashboard"}
                 sx={{
                   borderRadius: 1,
                   mb: 0.5,

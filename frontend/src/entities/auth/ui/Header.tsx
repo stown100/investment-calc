@@ -1,6 +1,17 @@
 import React from "react";
-import { AppBar, Toolbar, Typography, Box } from "@mui/material";
-import { Calculate as CalculateIcon } from "@mui/icons-material";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Box,
+  IconButton,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import {
+  Calculate as CalculateIcon,
+  Menu as MenuIcon,
+} from "@mui/icons-material";
 import { useAuthStore } from "../model/store";
 import { ThemeToggle } from "../../../shared/ui/ThemeToggle";
 import {
@@ -13,6 +24,13 @@ import {
 export const Header: React.FC = () => {
   const { user } = useAuthStore();
   const { isAuthenticated, showNavigation } = useHeaderState();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+
+  const handleMobileMenuToggle = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
 
   return (
     <AppBar
@@ -33,11 +51,24 @@ export const Header: React.FC = () => {
           px: 2,
         }}
       >
-        {/* Left side - Logo, Title and Navigation */}
+        {/* Left side - Burger (mobile), Logo, Title and Navigation */}
         <Box
           sx={{ display: "flex", alignItems: "center", gap: 2, flexGrow: 1 }}
         >
-          <Navigation showNavigation={showNavigation} />
+          {/* Mobile Menu Button - before logo */}
+          {isMobile && showNavigation && (
+            <IconButton
+              onClick={handleMobileMenuToggle}
+              sx={{
+                color: "white",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                },
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
 
           <Box
             sx={{
@@ -61,6 +92,12 @@ export const Header: React.FC = () => {
               Investment Calculator
             </Typography>
           </Box>
+
+          <Navigation
+            showNavigation={showNavigation}
+            mobileMenuOpen={mobileMenuOpen}
+            onMobileMenuToggle={handleMobileMenuToggle}
+          />
         </Box>
 
         {/* Right side - Theme Toggle and User Info or Login Button */}

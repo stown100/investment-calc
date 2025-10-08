@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { AuthState, LoginData, RegisterData, User } from "../types";
 import * as authApi from "../api/authApi";
-import { Navigate } from "react-router-dom";
 
 interface AuthStore extends AuthState {
   login: (
@@ -87,7 +86,8 @@ export const useAuthStore = create<AuthStore>()(
           isAuthenticated: false,
           isLoading: false,
         });
-        Navigate({ to: "/auth" });
+        // Redirect will be handled by router
+        window.location.href = "/welcome";
       },
 
       setLoading: (loading: boolean) => {
