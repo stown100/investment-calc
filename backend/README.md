@@ -4,17 +4,39 @@ Server-side part of the Investment Calculator application, built on Node.js usin
 
 ## 🏗️ Architecture
 
-The backend is built on the principle of simple and efficient architecture:
+The backend follows Feature-Sliced Design principles with entity-based organization:
 
 ```
 backend/
 ├── src/
-│   ├── index.ts          # Entry point and server configuration
-│   ├── db.ts             # MongoDB connection and collections
-│   └── projects.ts       # API endpoints for working with projects
-├── .env                  # Environment vars (MONGODB_URI, MONGODB_DB, JWT_SECRET)
-├── package.json          # Dependencies and scripts
-└── tsconfig.json         # TypeScript configuration
+│   ├── entities/              # Domain entities
+│   │   ├── project/
+│   │   │   └── model/
+│   │   │       ├── store.ts   # Project data access layer
+│   │   │       └── types.ts   # Project types
+│   │   ├── transaction/
+│   │   │   └── model/
+│   │   │       └── types.ts
+│   │   └── user/
+│   │       ├── api/
+│   │       │   ├── authRouter.ts  # Auth routes
+│   │       │   └── userApi.ts     # User API
+│   │       └── types.ts           # User types
+│   │
+│   ├── middleware/
+│   │   └── auth.ts           # JWT authentication middleware
+│   │
+│   ├── db.ts                 # MongoDB connection
+│   ├── server.ts             # Express server setup
+│   ├── projects.ts           # Projects endpoints
+│   ├── forecast.ts           # Forecasting logic
+│   ├── market.ts             # Market data endpoints
+│   └── index.ts              # Entry point (legacy)
+│
+├── .env                      # Environment vars
+├── package.json              # Dependencies and scripts
+├── tsconfig.json             # TypeScript configuration
+└── vercel.json               # Vercel deployment config
 ```
 
 ## 🛠️ Technology Stack
@@ -75,9 +97,9 @@ The project uses MongoDB. Configure connection via `.env`.
 
 ### Collections
 
-- `projects` - investments
-- `users` - auth users (email/password)
-- `daily_prices` - cached market prices
+- **`projects`** - Investment projects (both regular and crypto)
+- **`users`** - Authenticated users (email, password hash, timestamps)
+- **`daily_prices`** - Cached cryptocurrency market prices
 
 ### Project Fields
 
@@ -97,10 +119,90 @@ The project uses MongoDB. Configure connection via `.env`.
 http://localhost:3001/api
 ```
 
-### Get Projects List
+### Authentication Endpoints
+
+#### Register User
+
+```http
+POST /api/auth/register
+```
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "securepassword"
+}
+```
+
+**Response:**
+```json
+{
+  "token": "jwt_token_here",
+  "user": {
+    "id": "user_id",
+    "email": "user@example.com"
+  }
+}
+```
+
+#### Login User
+
+```http
+POST /api/auth/login
+```
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "securepassword"
+}
+```
+
+**Response:**
+```json
+{
+  "token": "jwt_token_here",
+  "user": {
+    "id": "user_id",
+    "email": "user@example.com"
+  }
+}
+```
+
+#### Get Current User
+
+```http
+GET /api/auth/me
+```
+
+**Headers:**
+```
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+  "id": "user_id",
+  "email": "user@example.com"
+}
+```
+
+### Projects Endpoints (Protected)
+
+All project endpoints require authentication via JWT token in the Authorization header.
+
+#### Get Projects List
 
 ```http
 GET /api/projects
+```
+
+**Headers:**
+```
+Authorization: Bearer {token}
 ```
 
 **Query Parameters:**
@@ -214,19 +316,55 @@ Database management:
 - Mongo connection and collections
 - Index creation
 
+#### `src/entities/user/api/authRouter.ts`
+
+Authentication routes:
+- User registration
+- User login
+- JWT token generation
+- Password hashing with bcrypt
+
+#### `src/middleware/auth.ts`
+
+JWT authentication middleware:
+- Token verification
+- User extraction from token
+- Protected route handling
+
 #### `src/projects.ts`
 
 Projects API:
-
 - Route definitions
 - Input data validation
 - CRUD operations business logic
 - Error handling
+- User-specific project filtering
+
+#### `src/forecast.ts`
+
+Forecasting engine:
+- Historical method
+- GBM (Geometric Brownian Motion) method
+- Monte Carlo simulation
+- Time-series calculations
+
+#### `src/market.ts`
+
+Market data API:
+- CoinGecko integration
+- Real-time crypto prices
+- Historical price data
+- Price caching
 
 ### Middleware
 
-- **CORS** - allows requests from frontend
-- **JSON parsing** - JSON parsing in requests
+- **CORS** - Allows requests from frontend
+- **JSON parsing** - Parses JSON request bodies
+- **Auth middleware** - JWT token verification for protected routes
+  - Validates Bearer tokens
+  - Extracts user from token
+  - Attaches user to request object
+  - Returns 401 for invalid/missing tokens
 
 ### Error Handling
 
@@ -277,20 +415,47 @@ The server outputs logs to console:
 
 ## 🔒 Security
 
-### Current Measures
+### Implemented Security Features
 
-- Input data validation
-- CORS settings
-- Error handling
+✅ **JWT Authentication**
+- Secure token-based authentication
+- Token expiration (24 hours)
+- Bearer token authorization
+
+✅ **Password Security**
+- Bcrypt hashing (10 salt rounds)
+- No plain-text password storage
+- Secure password comparison
+
+✅ **Protected Routes**
+- Middleware-based protection
+- User-specific data filtering
+- Request validation
+
+✅ **Input Validation**
+- Email format validation
+- Required field checking
+- Type validation
+
+✅ **CORS Configuration**
+- Controlled origin access
+- Credential support
+
+✅ **Error Handling**
+- Secure error messages
+- No sensitive data leakage
+- Proper HTTP status codes
 
 ### Production Recommendations
 
-- Authentication and authorization
-- Rate limiting
-- Schema-level validation
-- Request logging
-- HTTPS
-- Request size limits
+⚠️ **Rate Limiting** - Implement request throttling (express-rate-limit)
+⚠️ **HTTPS** - Enforce SSL/TLS in production
+⚠️ **Helmet.js** - Add security headers
+⚠️ **Input Sanitization** - Add validator.js for XSS protection
+⚠️ **Logging** - Implement Winston or similar
+⚠️ **Environment Variables** - Use proper secret management
+⚠️ **Request Size Limits** - Prevent large payload attacks
+⚠️ **Database Indexes** - Optimize queries with proper indexing
 
 ## 🚀 Deployment
 
