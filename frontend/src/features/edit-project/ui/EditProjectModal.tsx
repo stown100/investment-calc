@@ -14,6 +14,7 @@ interface EditProjectModalProps {
   opened: boolean;
   onClose: () => void;
   project: Project;
+  onSuccess?: () => void;
 }
 
 // Modal dialog for editing an existing project
@@ -21,6 +22,7 @@ export const EditProjectModal = ({
   opened,
   onClose,
   project,
+  onSuccess,
 }: EditProjectModalProps) => {
   return (
     <Dialog
@@ -56,7 +58,7 @@ export const EditProjectModal = ({
         </Box>
       </DialogTitle>
       <DialogContent>
-        <EditProjectForm project={project} onSuccess={onClose} />
+        <EditProjectForm project={project} onSuccess={onSuccess ?? onClose} />
       </DialogContent>
     </Dialog>
   );

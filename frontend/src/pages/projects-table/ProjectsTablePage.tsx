@@ -4,8 +4,6 @@ import {
   Typography,
   Alert,
   Button,
-  IconButton,
-  Skeleton,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -16,25 +14,38 @@ import {
 } from "@mui/icons-material";
 import { Project } from "../../entities/project/model/types";
 import { RateType } from "../../entities/project/types";
-import { ProjectsSummary } from "../../entities/project/api/projectApi";
-import {
-  getAllProjectsWithSummary,
-  toggleProjectSummaryInclusion,
-} from "../../entities/project/api/projectApi";
-import {
-  calculateProjectProfit,
-  formatCurrency,
-  formatPercentage,
-} from "../../entities/project/utils/profitCalculator";
+import { toggleProjectSummaryInclusion } from "../../entities/project/api/projectApi";
+
 import { ProjectDetailsModal } from "../../features/project-details/ui/ProjectDetailsModal";
-import { StyledCard } from "../../shared/ui/StyledCard";
-import { DesktopProjectsTable, MobileProjectsContainer } from "./components";
+import {
+  DesktopProjectsTable,
+  MobileProjectsContainer,
+  PageError,
+  PageSkeleton,
+  SummaryCards,
+} from "./components";
+import { AddProjectDropdown } from "../../features/add-project/ui/AddProjectDropdown";
+import { AddProjectModal } from "../../features/add-project/ui/AddProjectModal";
+import { AddCryptoProjectModal } from "../../features/add-project/ui/AddCryptoProjectModal";
+import { ProjectSearch } from "../../entities/project/ui/ProjectSearch";
+import { ProjectSorting } from "../../entities/project/ui/ProjectSorting";
+import { ProjectStatusFilter } from "../../entities/project/ui/ProjectStatusFilter";
+import { useProjectStore } from "../../entities/project/model/store";
+import { useProjectsSummaryStore } from "../../entities/project/model/summaryStore";
 
 export const ProjectsTablePage: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [summary, setSummary] = useState<ProjectsSummary | null>(null);
+  const projects = useProjectStore((s) => s.projects);
+  const fetchProjects = useProjectStore((s) => s.fetchProjects);
+  const loadMoreProjects = useProjectStore((s) => s.loadMoreProjects);
+  const hasMore = useProjectStore((s) => s.hasMore);
+  const isLoadingMore = useProjectStore((s) => s.isLoading);
+  const isInitialLoading = useProjectStore((s) => s.isInitialLoading);
+  const fetchSummary = useProjectsSummaryStore((s) => s.fetchSummary);
+  const setProjectIncludeInSummary = useProjectStore(
+    (s) => s.setProjectIncludeInSummary
+  );
   const [loading, setLoading] = useState(true);
   const [tableLoading, setTableLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +54,8 @@ export const ProjectsTablePage: React.FC = () => {
   const [togglingProjects, setTogglingProjects] = useState<Set<string>>(
     new Set()
   );
+  const [regularModalOpened, setRegularModalOpened] = useState(false);
+  const [cryptoModalOpened, setCryptoModalOpened] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -53,10 +66,11 @@ export const ProjectsTablePage: React.FC = () => {
     setTableLoading(true);
     setError(null);
     try {
-      const data = await getAllProjectsWithSummary();
-      setSummary(data.summary);
+      await Promise.all([
+        fetchSummary(),
+        fetchProjects(undefined, undefined, undefined, undefined, true),
+      ]);
       setTableLoading(false);
-      setProjects(data.projects);
     } catch (err) {
       setError("Failed to load projects data");
     } finally {
@@ -69,11 +83,12 @@ export const ProjectsTablePage: React.FC = () => {
     includeInSummary: boolean
   ) => {
     setTogglingProjects((prev) => new Set(prev).add(projectId));
-    setTableLoading(true);
     try {
       await toggleProjectSummaryInclusion(projectId, includeInSummary);
-      // Reload data to get updated summary
-      await loadData();
+      // Optimistically update local store to reflect toggle
+      setProjectIncludeInSummary(projectId, includeInSummary);
+      // Refresh only summary; do not reset/refresh list to avoid skeleton/flicker
+      await fetchSummary();
     } catch (err) {
       setError("Failed to update project summary inclusion");
     } finally {
@@ -114,80 +129,9 @@ export const ProjectsTablePage: React.FC = () => {
     );
   };
 
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          p: 2,
-          maxWidth: "1392px",
-          mx: "auto",
-          width: "100%",
-        }}
-      >
-        {/* Header Skeleton */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mb: 2,
-          }}
-        >
-          <Skeleton variant="text" width={200} height={40} />
-          <Skeleton
-            variant="rectangular"
-            width={100}
-            height={36}
-            sx={{ borderRadius: 1 }}
-          />
-        </Box>
+  if (loading) return <PageSkeleton />;
 
-        {/* Summary Cards Skeleton */}
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-            gap: 1.5,
-            mb: 3,
-          }}
-        >
-          {Array.from({ length: 5 }).map((_, index) => (
-            <StyledCard
-              key={index}
-              elevation={1}
-              sx={{ p: 1.5, textAlign: "center", borderRadius: 2 }}
-            >
-              <Skeleton
-                variant="text"
-                width="60%"
-                height={32}
-                sx={{ mx: "auto", mb: 1 }}
-              />
-              <Skeleton
-                variant="text"
-                width="80%"
-                height={20}
-                sx={{ mx: "auto" }}
-              />
-            </StyledCard>
-          ))}
-        </Box>
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-        <Button onClick={loadData} startIcon={<RefreshIcon />}>
-          Retry
-        </Button>
-      </Box>
-    );
-  }
+  if (error) return <PageError error={error} loadData={loadData} />;
 
   return (
     <Box
@@ -210,172 +154,68 @@ export const ProjectsTablePage: React.FC = () => {
         <Typography variant="h5" component="h1" sx={{ fontWeight: 600 }}>
           All Projects
         </Typography>
-        <Button
-          onClick={loadData}
-          startIcon={<RefreshIcon />}
-          variant="outlined"
-          size="small"
-        >
-          Refresh
-        </Button>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Button
+            onClick={loadData}
+            startIcon={<RefreshIcon />}
+            variant="outlined"
+            size="small"
+          >
+            Refresh
+          </Button>
+          <AddProjectDropdown
+            onAddRegularProject={() => setRegularModalOpened(true)}
+            onAddCryptoProject={() => setCryptoModalOpened(true)}
+            variant="outlined"
+            size="small"
+          />
+        </Box>
       </Box>
 
       {/* Summary Cards */}
-      {summary ? (
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-            gap: 1.5,
-            mb: 3,
-          }}
-        >
-          <StyledCard
-            elevation={1}
-            sx={{ p: 1.5, textAlign: "center", borderRadius: 2 }}
-          >
-            <Typography
-              variant="h6"
-              color="primary"
-              sx={{ fontWeight: 600, fontSize: "1.1rem" }}
-            >
-              {summary.totalProjects}
-            </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ fontSize: "0.75rem" }}
-            >
-              Total Projects
-            </Typography>
-          </StyledCard>
-          <StyledCard
-            elevation={1}
-            sx={{ p: 1.5, textAlign: "center", borderRadius: 2 }}
-          >
-            <Typography
-              variant="h6"
-              color="success.main"
-              sx={{ fontWeight: 600, fontSize: "1.1rem" }}
-            >
-              {formatCurrency(summary.totalInvestment)}
-            </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ fontSize: "0.75rem" }}
-            >
-              Total Investment
-            </Typography>
-          </StyledCard>
-          <StyledCard
-            elevation={1}
-            sx={{ p: 1.5, textAlign: "center", borderRadius: 2 }}
-          >
-            <Typography
-              variant="h6"
-              color="info.main"
-              sx={{ fontWeight: 600, fontSize: "1.1rem" }}
-            >
-              {formatPercentage(summary.averagePercent)}
-            </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ fontSize: "0.75rem" }}
-            >
-              Average Return
-            </Typography>
-          </StyledCard>
-          <StyledCard
-            elevation={1}
-            sx={{ p: 1.5, textAlign: "center", borderRadius: 2 }}
-          >
-            <Typography
-              variant="h6"
-              color="warning.main"
-              sx={{ fontWeight: 600, fontSize: "1.1rem" }}
-            >
-              {formatCurrency(summary.activeInvestments)}
-            </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ fontSize: "0.75rem" }}
-            >
-              Active Investments
-            </Typography>
-          </StyledCard>
-          <StyledCard
-            elevation={1}
-            sx={{ p: 1.5, textAlign: "center", borderRadius: 2 }}
-          >
-            <Typography
-              variant="h6"
-              color="success.main"
-              sx={{ fontWeight: 600, fontSize: "1.1rem" }}
-            >
-              {formatCurrency(summary.totalProfit || 0)}
-            </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ fontSize: "0.75rem" }}
-            >
-              Total Profit
-            </Typography>
-          </StyledCard>
-        </Box>
-      ) : (
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-            gap: 1.5,
-            mb: 3,
-          }}
-        >
-          {Array.from({ length: 5 }).map((_, index) => (
-            <StyledCard
-              key={index}
-              elevation={1}
-              sx={{ p: 1.5, textAlign: "center", borderRadius: 2 }}
-            >
-              <Skeleton
-                variant="text"
-                width="60%"
-                height={32}
-                sx={{ mx: "auto", mb: 1 }}
-              />
-              <Skeleton
-                variant="text"
-                width="80%"
-                height={20}
-                sx={{ mx: "auto" }}
-              />
-            </StyledCard>
-          ))}
-        </Box>
-      )}
+      <SummaryCards />
+
+      {/* Filters and sorting */}
+      <Box
+        sx={{
+          display: "flex",
+          gap: 2,
+          alignItems: "flex-end",
+          mb: 2,
+          flexWrap: "wrap",
+        }}
+      >
+        <ProjectSearch />
+        <ProjectSorting />
+        <ProjectStatusFilter />
+      </Box>
 
       {/* Projects Table - Desktop / Mobile Cards */}
       {!isMobile ? (
         <DesktopProjectsTable
           projects={projects}
-          tableLoading={tableLoading}
+          tableLoading={tableLoading || isInitialLoading}
           togglingProjects={togglingProjects}
           onToggleSummary={handleToggleSummary}
           onViewProject={handleViewProject}
+          onRefresh={loadData}
+          onLoadMore={loadMoreProjects}
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
           getProjectStatus={getProjectStatus}
           getProjectTypeIcon={getProjectTypeIcon}
         />
       ) : (
         <MobileProjectsContainer
           projects={projects}
-          tableLoading={tableLoading}
+          tableLoading={tableLoading || isInitialLoading}
           togglingProjects={togglingProjects}
           onToggleSummary={handleToggleSummary}
           onViewProject={handleViewProject}
+          onRefresh={loadData}
+          onLoadMore={loadMoreProjects}
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
           getProjectStatus={getProjectStatus}
           getProjectTypeIcon={getProjectTypeIcon}
         />
@@ -386,6 +226,21 @@ export const ProjectsTablePage: React.FC = () => {
         project={selectedProject}
         open={detailsModalOpen}
         onClose={handleCloseDetails}
+      />
+
+      <AddProjectModal
+        opened={regularModalOpened}
+        onClose={() => {
+          setRegularModalOpened(false);
+          loadData();
+        }}
+      />
+      <AddCryptoProjectModal
+        opened={cryptoModalOpened}
+        onClose={() => {
+          setCryptoModalOpened(false);
+          loadData();
+        }}
       />
     </Box>
   );

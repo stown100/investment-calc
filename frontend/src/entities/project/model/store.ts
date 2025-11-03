@@ -25,6 +25,7 @@ interface ProjectState {
   addProject: (project: Project) => Promise<void>;
   removeProject: (id: string) => Promise<void>;
   updateProject: (project: Project) => Promise<void>;
+  setProjectIncludeInSummary: (id: string, includeInSummary: boolean) => void;
   setSorting: (sortBy: string, sortOrder: string) => void;
   setStatusFilter: (status: string) => void;
   setSearchQuery: (search: string) => void;
@@ -171,6 +172,13 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     // Refresh summary after mutation
     useProjectsSummaryStore.getState().fetchSummary();
     set({ lastChangedAt: Date.now() });
+  },
+  setProjectIncludeInSummary: (id: string, includeInSummary: boolean) => {
+    set((state) => ({
+      projects: state.projects.map((p) =>
+        p.id === id ? { ...p, includeInSummary } : p
+      ),
+    }));
   },
   setSorting: (sortBy: string, sortOrder: string) => {
     set({ sortBy, sortOrder });

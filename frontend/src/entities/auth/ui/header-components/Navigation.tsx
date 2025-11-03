@@ -42,8 +42,8 @@ export const Navigation: React.FC<NavigationProps> = ({
   };
 
   const getCurrentTab = () => {
-    if (location.pathname === "/projects") return "/projects";
-    return "/dashboard";
+    if (location.pathname === "/dashboard") return "/dashboard";
+    return "/projects";
   };
 
   if (!showNavigation) return null;
@@ -76,18 +76,18 @@ export const Navigation: React.FC<NavigationProps> = ({
           }}
         >
           <Tab
-            icon={<HomeIcon />}
-            iconPosition="start"
-            label="Dashboard"
-            value="/dashboard"
-            disableRipple
-            disableFocusRipple
-          />
-          <Tab
             icon={<TableIcon />}
             iconPosition="start"
             label="All Projects"
             value="/projects"
+            disableRipple
+            disableFocusRipple
+          />
+          <Tab
+            icon={<HomeIcon />}
+            iconPosition="start"
+            label="Dashboard"
+            value="/dashboard"
             disableRipple
             disableFocusRipple
           />
@@ -114,27 +114,6 @@ export const Navigation: React.FC<NavigationProps> = ({
           <List>
             <ListItem disablePadding>
               <ListItemButton
-                onClick={() => handleMobileNavigation("/dashboard")}
-                selected={location.pathname === "/dashboard"}
-                sx={{
-                  borderRadius: 1,
-                  mb: 0.5,
-                  "&.Mui-selected": {
-                    backgroundColor: "rgba(255, 255, 255, 0.2)",
-                  },
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  },
-                }}
-              >
-                <ListItemIcon>
-                  <HomeIcon sx={{ color: "white" }} />
-                </ListItemIcon>
-                <ListItemText primary="Dashboard" />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton
                 onClick={() => handleMobileNavigation("/projects")}
                 selected={location.pathname === "/projects"}
                 sx={{
@@ -152,6 +131,27 @@ export const Navigation: React.FC<NavigationProps> = ({
                   <TableIcon sx={{ color: "white" }} />
                 </ListItemIcon>
                 <ListItemText primary="All Projects" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => handleMobileNavigation("/dashboard")}
+                selected={location.pathname === "/dashboard"}
+                sx={{
+                  borderRadius: 1,
+                  mb: 0.5,
+                  "&.Mui-selected": {
+                    backgroundColor: "rgba(255, 255, 255, 0.2)",
+                  },
+                  "&:hover": {
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <HomeIcon sx={{ color: "white" }} />
+                </ListItemIcon>
+                <ListItemText primary="Dashboard" />
               </ListItemButton>
             </ListItem>
           </List>

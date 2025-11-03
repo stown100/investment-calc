@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Box } from "@mui/material";
 import { Project } from "../../../../entities/project/model/types";
 import { MobileProjectCard } from "./MobileProjectCard";
@@ -10,6 +10,10 @@ interface MobileProjectsContainerProps {
   togglingProjects: Set<string>;
   onToggleSummary: (id: string, includeInSummary: boolean) => void;
   onViewProject: (project: Project) => void;
+  onRefresh: () => void;
+  onLoadMore: () => void;
+  hasMore: boolean;
+  isLoadingMore: boolean;
   getProjectStatus: (project: Project) => {
     status: string;
     color:
@@ -32,9 +36,31 @@ export const MobileProjectsContainer: React.FC<
   togglingProjects,
   onToggleSummary,
   onViewProject,
+  onRefresh,
+  onLoadMore,
+  hasMore,
+  isLoadingMore,
   getProjectStatus,
   getProjectTypeIcon,
 }) => {
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (tableLoading) return;
+    const targetEl = sentinelRef.current;
+    if (!targetEl) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
+          onLoadMore();
+        }
+      },
+      { root: null, threshold: 0.1 }
+    );
+    observer.observe(targetEl);
+    return () => observer.disconnect();
+  }, [projects.length, tableLoading, hasMore, isLoadingMore, onLoadMore]);
+
   return (
     <Box>
       {tableLoading
@@ -48,10 +74,13 @@ export const MobileProjectsContainer: React.FC<
               isToggling={togglingProjects.has(project.id)}
               onToggleSummary={onToggleSummary}
               onViewProject={onViewProject}
+              onRefresh={onRefresh}
               getProjectStatus={getProjectStatus}
               getProjectTypeIcon={getProjectTypeIcon}
             />
           ))}
+      {/* Infinite scroll sentinel */}
+      {!tableLoading && <Box ref={sentinelRef} sx={{ height: 1 }} />}
     </Box>
   );
 };

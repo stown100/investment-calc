@@ -40,11 +40,12 @@ import {
 import dayjs from "dayjs";
 
 // Calculator for investment returns
-export const Calculator = () => {
+export const Calculator: React.FC = () => {
   const storeProjects = useProjectStore((state) => state.projects);
   const lastChangedAt = useProjectStore((state) => state.lastChangedAt);
   const [projects, setProjects] = useState<ProjectLite[]>(storeProjects);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
+  const [initializedSelection, setInitializedSelection] = useState(false);
   const [yearsToShow, setYearsToShow] = useState(10);
   const [forecastMethod, setForecastMethod] = useState<"historical" | "gbm">(
     "historical"
@@ -77,8 +78,12 @@ export const Calculator = () => {
       .then((data) => {
         if (cancelled) return;
         setProjects(data);
-        // keep only existing IDs after list updates
-        if (selectedProjects.length > 0) {
+        // On first load select all projects by default
+        if (!initializedSelection) {
+          const allIds = data.map((p) => p.id);
+          setSelectedProjects(allIds);
+          setInitializedSelection(true);
+        } else if (selectedProjects.length > 0) {
           const validIds = new Set(data.map((p) => p.id));
           setSelectedProjects((prev) => prev.filter((id) => validIds.has(id)));
         }
@@ -86,6 +91,12 @@ export const Calculator = () => {
       .catch(() => {
         if (cancelled) return;
         setProjects(storeProjects as any);
+        // Fallback: also select all on first load
+        if (!initializedSelection) {
+          const allIds = (storeProjects as any[]).map((p) => p.id);
+          setSelectedProjects(allIds);
+          setInitializedSelection(true);
+        }
       });
     return () => {
       cancelled = true;
