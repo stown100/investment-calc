@@ -1,21 +1,6 @@
-import React from "react";
-import {
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Switch,
-  FormControlLabel,
-  Chip,
-  IconButton,
-  Tooltip,
-  Skeleton,
-  Typography,
-} from "@mui/material";
-import { Visibility as ViewIcon } from "@mui/icons-material";
+import React, { useEffect, useRef, useState } from "react";
+import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Switch, FormControlLabel, Chip, Skeleton, Typography } from "@mui/material";
+// removed: MoreHorizIcon - using ProjectActionsMenu
 import { Project } from "../../../../entities/project/model/types";
 import { RateType } from "../../../../entities/project/types";
 import { StyledCard } from "../../../../shared/ui/StyledCard";
@@ -23,6 +8,10 @@ import {
   formatCurrency,
   formatPercentage,
 } from "../../../../entities/project/utils/profitCalculator";
+import { ConfirmDialog } from "../../../../shared/ui";
+import { EditProjectModal } from "../../../../features/edit-project/ui/EditProjectModal";
+import { removeProject } from "../../../../entities/project/api/projectApi";
+import { ProjectActionsMenu } from "../../../../entities/project/ui/ProjectActionsMenu";
 
 interface DesktopProjectsTableProps {
   projects: Project[];
@@ -30,6 +19,10 @@ interface DesktopProjectsTableProps {
   togglingProjects: Set<string>;
   onToggleSummary: (id: string, includeInSummary: boolean) => void;
   onViewProject: (project: Project) => void;
+  onRefresh: () => void;
+  onLoadMore: () => void;
+  hasMore: boolean;
+  isLoadingMore: boolean;
   getProjectStatus: (project: Project) => {
     status: string;
     color:
@@ -50,12 +43,40 @@ export const DesktopProjectsTable: React.FC<DesktopProjectsTableProps> = ({
   togglingProjects,
   onToggleSummary,
   onViewProject,
+  onRefresh,
+  onLoadMore,
+  hasMore,
+  isLoadingMore,
   getProjectStatus,
   getProjectTypeIcon,
 }) => {
+  const [editProject, setEditProject] = useState<Project | null>(null);
+  const [deleteProject, setDeleteProject] = useState<Project | null>(null);
+  const [actionsHoverRowId, setActionsHoverRowId] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const sentinelRef = useRef<HTMLTableRowElement | null>(null);
+
+  useEffect(() => {
+    if (tableLoading) return;
+    const rootEl = containerRef.current;
+    const targetEl = sentinelRef.current;
+    if (!rootEl || !targetEl) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting && hasMore && !isLoadingMore) {
+          onLoadMore();
+        }
+      },
+      { root: rootEl, threshold: 0.1 }
+    );
+    observer.observe(targetEl);
+    return () => observer.disconnect();
+  }, [projects.length, tableLoading, hasMore, isLoadingMore, onLoadMore]);
+
   return (
     <StyledCard elevation={1} sx={{ borderRadius: 2, overflow: "hidden" }}>
-      <TableContainer sx={{ maxHeight: "70vh" }}>
+      <TableContainer sx={{ maxHeight: "70vh" }} ref={containerRef}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
@@ -200,7 +221,12 @@ export const DesktopProjectsTable: React.FC<DesktopProjectsTableProps> = ({
                     <TableRow
                       key={project.id}
                       hover
-                      sx={{ "& .MuiTableCell-root": { py: 0.5 } }}
+                      sx={{
+                        "& .MuiTableCell-root": { py: 0.5 },
+                        ...(actionsHoverRowId === project.id
+                          ? { "&.MuiTableRow-hover:hover": { backgroundColor: "transparent" } }
+                          : {}),
+                      }}
                     >
                       <TableCell>
                         <Box
@@ -282,22 +308,70 @@ export const DesktopProjectsTable: React.FC<DesktopProjectsTableProps> = ({
                         />
                       </TableCell>
                       <TableCell>
-                        <Tooltip title="View Details">
-                          <IconButton
-                            size="small"
-                            onClick={() => onViewProject(project)}
-                            sx={{ p: 0.5 }}
-                          >
-                            <ViewIcon sx={{ fontSize: 16 }} />
-                          </IconButton>
-                        </Tooltip>
+                        <ProjectActionsMenu
+                          project={project}
+                          onView={(p) => onViewProject(p)}
+                          onEdit={(p) => setEditProject(p)}
+                          onDelete={(p) => setDeleteProject(p)}
+                          iconSize={18}
+                          buttonPadding={0.5}
+                          onHoverChange={(hovering) =>
+                            setActionsHoverRowId(hovering ? project.id : null)
+                          }
+                        />
                       </TableCell>
                     </TableRow>
                   );
                 })}
+            {/* Infinite scroll sentinel */}
+            {!tableLoading && (
+              <TableRow ref={sentinelRef}>
+                <TableCell colSpan={8} sx={{ py: 1 }}>
+                  {isLoadingMore && (
+                    <Skeleton variant="text" width="100%" height={20} />
+                  )}
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>
+
+      
+
+      {editProject && (
+        <EditProjectModal
+          opened={Boolean(editProject)}
+          onClose={() => {
+            setEditProject(null);
+          }}
+          onSuccess={() => {
+            setEditProject(null);
+            onRefresh();
+          }}
+          project={editProject}
+        />
+      )}
+
+      <ConfirmDialog
+        open={Boolean(deleteProject)}
+        onClose={() => setDeleteProject(null)}
+        onConfirm={async () => {
+          if (deleteProject) {
+            await removeProject(deleteProject.id);
+            setDeleteProject(null);
+            onRefresh();
+          }
+        }}
+        title="Delete Project"
+        message={
+          <>
+            Are you sure you want to delete <strong>{deleteProject?.name}</strong>? This action cannot be undone.
+          </>
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </StyledCard>
   );
 };

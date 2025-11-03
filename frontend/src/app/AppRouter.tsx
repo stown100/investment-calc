@@ -7,7 +7,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import { Box } from "@mui/material";
-import { HomePage } from "../pages/home/HomePage";
+import { DashboardPage } from "../pages/home/DashboardPage";
 import { AuthPage } from "../pages/auth/AuthPage";
 import { WelcomePage } from "../pages/welcome/WelcomePage";
 import { ProjectsTablePage } from "../pages/projects-table/ProjectsTablePage";
@@ -37,7 +37,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuthStore();
 
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/projects" replace />;
   }
 
   return <>{children}</>;
@@ -51,11 +51,11 @@ const AppLayout: React.FC = () => {
       <Header />
       <Box component="main" sx={{ flexGrow: 1 }}>
         {location.pathname === "/dashboard" ? (
-          <HomePage />
+          <DashboardPage />
         ) : location.pathname === "/projects" ? (
           <ProjectsTablePage />
         ) : (
-          <HomePage />
+          <ProjectsTablePage />
         )}
       </Box>
     </Box>
@@ -107,14 +107,14 @@ export const AppRouter = () => {
     <NotificationsProvider>
       <Router>
         <Routes>
-          {/* Root redirect - to welcome for non-auth, to dashboard for auth */}
+          {/* Root redirect - to welcome for non-auth, to projects for auth */}
           <Route
             path="/"
             element={
               isLoading ? (
                 <Loader message="Loading..." size="large" />
               ) : isAuthenticated ? (
-                <Navigate to="/dashboard" replace />
+                <Navigate to="/projects" replace />
               ) : (
                 <Navigate to="/welcome" replace />
               )

@@ -27,6 +27,7 @@ export const useProjectsSummaryStore = create<ProjectsSummaryState>((set) => ({
           averagePercent: 0,
           totalInvestment: 0,
           activeInvestments: 0,
+          totalProfit: 0,
         },
       });
     }

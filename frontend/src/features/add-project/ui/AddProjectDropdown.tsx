@@ -17,11 +17,24 @@ import {
 interface AddProjectDropdownProps {
   onAddRegularProject: () => void;
   onAddCryptoProject: () => void;
+  variant?: "text" | "outlined" | "contained";
+  size?: "small" | "medium" | "large";
+  color?:
+    | "inherit"
+    | "primary"
+    | "secondary"
+    | "success"
+    | "error"
+    | "info"
+    | "warning";
 }
 
-export const AddProjectDropdown = ({
+export const AddProjectDropdown: React.FC<AddProjectDropdownProps> = ({
   onAddRegularProject,
   onAddCryptoProject,
+  variant = "contained",
+  size = "small",
+  color = "primary",
 }: AddProjectDropdownProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -47,15 +60,15 @@ export const AddProjectDropdown = ({
   return (
     <Box>
       <Button
-        variant="contained"
+        variant={variant}
         startIcon={<AddIcon />}
         endIcon={<ArrowDownIcon />}
         onClick={handleClick}
-        size="small"
+        size={size}
+        color={color}
         sx={{
-          borderRadius: 2,
           textTransform: "none",
-          boxShadow: 2,
+          boxShadow: variant === "contained" ? 2 : 0,
         }}
       >
         Add Project
